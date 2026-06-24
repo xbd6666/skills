@@ -19,9 +19,10 @@ Core rule: infer the project's shape first, then write conventions for that shap
    - identify languages, frameworks, entrypoints, tests, generated outputs, deployment surfaces, and dependency directions
 2. Classify the project or module archetype from evidence.
 3. Choose the convention dimensions that matter for that archetype.
-4. Generate or update `CONVENTIONS.md` for durable human/project rules.
-5. Generate or update `AGENTS.md` as the short agent-facing entrypoint for that scope.
-6. Re-read the generated docs and check for conflicts, stale paths, vague placeholders, and boundary leakage.
+4. Propose the convention-file layout and let the user choose before creating new files, unless the user already specified the layout or the task is only updating existing docs in place.
+5. Generate or update `CONVENTIONS.md` for durable human/project rules.
+6. Generate or update `AGENTS.md` as the short agent-facing entrypoint for that scope.
+7. Re-read the generated docs and check for conflicts, stale paths, vague placeholders, and boundary leakage.
 
 When existing convention docs are present, preserve their tone, language, section style, and naming choices unless the user asks for a rewrite.
 
@@ -123,6 +124,16 @@ Use `assets/AGENTS.template.md` only as a shape guide. Keep the final file short
 - Module `CONVENTIONS.md`: use when a subfolder has its own role, public contract, or contribution rules.
 - Root `AGENTS.md`: use as the first agent entrypoint; it should route agents to relevant module docs.
 - Module `AGENTS.md`: use when mistakes in that folder are expensive and local rules must be visible before edits.
+
+Before creating new convention docs, recommend one layout from evidence and ask the user to choose:
+
+| Choice | Use when | Creates |
+| --- | --- | --- |
+| Root only | Small or single-purpose repos | root `CONVENTIONS.md` and root `AGENTS.md` |
+| Root plus modules | Monorepos, hybrid repos, layered systems, or multiple apps/packages | root docs plus targeted module docs |
+| Module only | The user targets one subfolder or wants local rules without repo-wide policy | scoped `CONVENTIONS.md` and `AGENTS.md` in that folder |
+
+If one layout is clearly best, mark it as recommended. If the user asks to proceed without confirmation, apply the recommended layout and state the assumption.
 
 For small repos, one root `CONVENTIONS.md` plus one root `AGENTS.md` is enough.
 
