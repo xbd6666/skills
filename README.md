@@ -88,37 +88,6 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 AI 助手会优先使用 DBX MCP 工具查看连接、表结构和 schema，再根据任务执行查询、打开 DBX UI 或写入数据，并在写入后反查校验结果。
 
-## Skill 设计原则
-
-- 先理解项目，再生成文档
-- 不强行套用固定架构模型
-- 输出内容必须贴合真实目录、命令和文件
-- `CONVENTIONS.md` 保存稳定规则
-- `AGENTS.md` 保持简短，只保留 Agent 修改代码前必须知道的高风险约束
-- 数据库类 Skill 不保存连接密码或具体项目的敏感配置
-- 对数据库写入、更新和删除操作必须先检查 schema，并在操作后校验结果
-- 避免生成空泛、通用、无法执行的工程建议
-
-## 贡献方向
-
-欢迎继续补充更多可复用 Skill，例如：
-
-- API 设计规范推荐
-- 测试策略推荐
-- 前端组件开发规范
-- 数据库迁移规范
-- 安全审查流程
-- 文档生成与维护流程
-
-新增 Skill 时建议保持统一结构：
-
-```text
-skill-name/
-├── SKILL.md
-├── agents/
-└── assets/
-```
-
 ## License
 
 本仓库当前未包含独立的 `LICENSE` 文件。正式发布开源版本前，建议补充明确的开源协议。
