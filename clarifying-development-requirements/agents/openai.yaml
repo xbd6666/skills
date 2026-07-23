@@ -1,0 +1,4 @@
+interface:
+  display_name: "严格开发需求澄清"
+  short_description: "逐项澄清模糊想法，生成严谨、可执行、可验收的开发需求"
+  default_prompt: "Use $clarifying-development-requirements to help me clarify this incomplete development idea before rewriting it as a final requirement."

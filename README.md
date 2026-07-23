@@ -51,10 +51,29 @@ skills 是一个开源的通用 AI 助手技能项目，用于沉淀、组织和
 - 在 DBX 桌面端打开表或查询结果
 - 将文档、表格等结构化数据导入数据库并进行校验
 
+### clarifying-development-requirements
+
+`clarifying-development-requirements` 用于将模糊、零散、不完整或存在歧义的开发想法，逐步澄清为严谨、可执行、可验收的开发需求。
+
+它会先区分已确认信息、待确认事项和可在实施时决定的内部细节，每轮只询问一个影响最大的关键问题；在目标、业务规则、修改范围和验收标准等信息充分后，再输出结构化需求并请用户确认。
+
+适用场景包括：
+
+- 将口述、碎片化的开发想法整理为完整需求
+- 补全功能开发中的权限、数据规则和异常边界
+- 明确缺陷修复的复现条件、期望结果和验收方式
+- 确认重构中必须保持的外部行为和禁止修改范围
+- 澄清 UI 调整的目标区域、交互状态和响应式要求
+- 在直接实现前确认会影响业务语义、兼容性或公共接口的关键决策
+
 ## 目录结构
 
 ```text
 .
+├── clarifying-development-requirements/
+│   ├── SKILL.md
+│   └── agents/
+│       └── openai.yaml
 ├── dbx-mcp/
 │   ├── SKILL.md
 │   └── agents/
@@ -87,6 +106,14 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 ```
 
 AI 助手会优先使用 DBX MCP 工具查看连接、表结构和 schema，再根据任务执行查询、打开 DBX UI 或写入数据，并在写入后反查校验结果。
+
+当开发需求仍然模糊或不完整时，可以使用 `clarifying-development-requirements`：
+
+```text
+Use $clarifying-development-requirements to clarify this development idea into an actionable and testable requirement.
+```
+
+AI 助手会逐轮确认最关键的未知事项，在满足完成门槛后输出结构化开发需求，并在用户确认前避免修改代码或外部状态。
 
 ## License
 
