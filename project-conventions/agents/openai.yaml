@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Conventions"
-  short_description: "Generate project rules and agent docs"
-  default_prompt: "Use $project-conventions to generate CONVENTIONS.md and AGENTS.md for this project."
+  short_description: "Evidence-backed project and agent rules"
+  default_prompt: "Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md for this project before writing files."

@@ -1,3 +1,15 @@
+# {ScopeName} 约定
+
+## 适用范围与继承
+
+- 本文适用于：{ScopePath}
+- 上级约定：{ParentConventionPathOrNone}
+- 本文扩展的上级主题：{ExtendedParentTopicsOrNone}
+
+## 覆盖项
+
+- {ExplicitOverridesOrNone}
+
 ## 项目/模块组织
 
 `{ScopeName}` 是 `{ScopeRole}`，负责 `{PrimaryResponsibility}`。

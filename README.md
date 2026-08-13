@@ -1,70 +1,126 @@
 # skills
 
-skills 是一个开源的通用 AI 助手技能项目，用于沉淀、组织和推荐可复用的 Skills。
+> 一组可复用、可移植的 AI 助手 Skills，帮助代理在重复任务中遵循稳定的工作流、边界与验证要求。
 
-项目通过标准化的 Skill 描述、模板和 AI 助手配置，帮助开发者在不同代码仓库中快速选择合适的技能，让 AI 助手更准确地理解项目结构、生成约定文档，并遵循团队的工程规范。
+本仓库的核心是每个 Skill 目录中的 `SKILL.md`。它描述任务何时触发、应如何执行以及需要遵守的约束，不绑定某一个 AI 产品或代码代理。不同宿主对 Skill 的发现、安装和调用方式可能不同；请按宿主的机制导入目录，并保留目录内的相对结构。
 
-## 项目用途
+## 适用场景
 
-- 推荐适合当前任务的 AI 助手 Skill
-- 沉淀个人或团队常用的 AI 编程助手能力
-- 为不同类型的代码仓库生成工程约定文档
-- 让 AI Agent 在修改代码前理解项目边界、目录职责和验证要求
-- 通过模板减少重复编写 `CONVENTIONS.md`、`AGENTS.md` 等协作文档的成本
+- 希望把个人或团队反复使用的 AI 工作流沉淀为可复用资产。
+- 希望 AI 在操作数据库、澄清需求或修改代码前遵循明确的安全边界。
+- 希望为不同类型的仓库建立可追溯、可维护的工程约定。
+- 希望避免每次对话都重复说明流程、风险与验收要求。
 
-## 当前内置 Skill
+## 内置 Skills
 
-### project-conventions
+| Skill | 解决的问题 | 典型触发 | 关键约束 |
+| --- | --- | --- | --- |
+| [`project-conventions`](./project-conventions/SKILL.md) | 创建、审查或更新项目规范文档 | 需要 `CONVENTIONS.md`、`AGENTS.md`，或要梳理目录职责和架构边界 | 默认先提案；规则必须有仓库证据；子模块只能显式覆盖父级规则 |
+| [`dbx-mcp`](./dbx-mcp/SKILL.md) | 通过 DBX MCP 安全地检查和操作数据库 | 查看连接、检查 schema、编写/执行 SQL、导入结构化数据 | 先发现连接与 schema；高风险写操作须有明确确认；写后复查 |
+| [`clarifying-development-requirements`](./clarifying-development-requirements/SKILL.md) | 将模糊开发想法澄清为可实施、可验收的需求 | 功能、缺陷、重构或 UI 请求存在实质歧义 | 先做只读调查；只询问会改变结果的关键决策；区分需求确认与执行授权 |
 
-`project-conventions` 用于为任意代码仓库创建或更新项目约定文档。
+## 快速开始
 
-它会先根据仓库结构判断项目类型，再生成适合该项目的：
+### 1. 获取仓库
 
-- `CONVENTIONS.md`：面向人类和团队的长期工程约定
-- `AGENTS.md`：面向 AI 编程 Agent 的短入口说明
+```bash
+git clone https://github.com/xbd6666/skills.git
+```
 
-适用场景包括：
+也可以只获取所需的单个 Skill 目录。
 
-- 前端应用
-- 后端/API 服务
-- 类库或 SDK
-- CLI 工具
-- Monorepo
-- 数据/机器学习项目
-- 基础设施项目
-- 文档站点
+### 2. 导入到你的 AI 助手
 
-### dbx-mcp
+将目标 Skill 的完整目录导入或复制到宿主所识别的 Skills 位置。例如，使用 `project-conventions` 时，应一并保留：
 
-`dbx-mcp` 是一个通用数据库操作 Skill，用于在支持 MCP 的 AI 助手环境中规范使用 DBX MCP。
+```text
+project-conventions/
+├── SKILL.md
+├── agents/
+│   └── openai.yaml
+└── assets/
+    ├── AGENTS.template.md
+    ├── CONVENTIONS.template.md
+    └── DISCOVERY.template.md
+```
 
-它不绑定具体数据库、项目、账号或密码，而是提供一套通用工作流，帮助 AI 助手在处理数据库任务时先发现连接、检查表结构，再安全地编写、执行和验证 SQL。
+- `SKILL.md` 是必需的通用指令入口。
+- `assets/` 中的资源由 Skill 在需要时读取或复用，不能只复制 `SKILL.md`。
+- `agents/openai.yaml` 是可选的界面元数据；不识别它的宿主可以忽略，不影响 `SKILL.md` 的核心工作流。
 
-适用场景包括：
+> 以下示例使用 `$skill-name` 形式调用。若你的宿主采用其他调用语法，请按其文档替换触发方式。
 
-- 查看 DBX 已配置的数据库连接
-- 新增或验证数据库连接
-- 列出表和视图
-- 查看单表字段结构
-- 获取多表 schema 上下文并辅助编写 SQL
-- 执行查询并总结结果
-- 在 DBX 桌面端打开表或查询结果
-- 将文档、表格等结构化数据导入数据库并进行校验
+### 3. 调用 Skill
 
-### clarifying-development-requirements
+```text
+Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md for this project.
 
-`clarifying-development-requirements` 用于将模糊、零散、不完整或存在歧义的开发想法，逐步澄清为严谨、可执行、可验收的开发需求。
+Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
-它会先区分已确认信息、待确认事项和可在实施时决定的内部细节，每轮只询问一个影响最大的关键问题；在目标、业务规则、修改范围和验收标准等信息充分后，再输出结构化需求并请用户确认。
+使用 $clarifying-development-requirements 澄清这项不完整的开发需求，并整理为可执行、可验收的说明。
+```
 
-适用场景包括：
+## project-conventions 工作方式
 
-- 将口述、碎片化的开发想法整理为完整需求
-- 补全功能开发中的权限、数据规则和异常边界
-- 明确缺陷修复的复现条件、期望结果和验收方式
-- 确认重构中必须保持的外部行为和禁止修改范围
-- 澄清 UI 调整的目标区域、交互状态和响应式要求
-- 在直接实现前确认会影响业务语义、兼容性或公共接口的关键决策
+`project-conventions` 用于把仓库中实际存在的结构、构建方式和边界，整理为人类与 AI 代理都能遵守的项目约定。
+
+### 三种模式
+
+| 模式 | 行为 | 是否写入文件 |
+| --- | --- | --- |
+| `audit` | 检查现有约定文档，报告缺口与冲突 | 否 |
+| `propose` | 输出发现报告、推荐布局与变更摘要 | 否；默认模式 |
+| `apply` | 按已确认的范围创建或更新约定文档 | 是 |
+
+明确要求“生成”“创建”“更新”或“写入”时，Skill 才会进入 `apply`。对于已有文档，还可按 `preserve`、`update` 或 `replace` 区分保留、最小更新和明确重写。
+
+### 生成前的证据链
+
+在形成规则前，Skill 会记录：
+
+1. 请求的模式、范围、布局、语言和已有文档处理策略。
+2. 从仓库根到目标目录的 `CONVENTIONS.md` 与 `AGENTS.md`。
+3. 每项“证据 → 观察 → 推断 → 规则影响”。
+4. 无法从仓库确认的假设与待确认事项。
+
+因此，未从仓库证实的框架、验证命令、职责边界或依赖方向不会被伪装为既定事实。
+
+### 规范文档的继承
+
+- 父级 `CONVENTIONS.md` 默认适用于子目录。
+- 子模块只可通过 `Overrides` 或“覆盖项”明确覆盖父级规则。
+- 同目录的 `CONVENTIONS.md` 优先于 `AGENTS.md`；后者只保留简短的操作入口与高风险提醒。
+- 发现未显式声明的规则冲突时，Skill 会报告冲突而非自行裁决。
+
+常见产物：
+
+- `CONVENTIONS.md`：面向团队的长期工程约定。
+- `AGENTS.md`：面向代理的短入口说明。
+- 发现报告：本次规则、布局和改动建议所依据的证据。
+
+## dbx-mcp 工作方式
+
+`dbx-mcp` 适用于已提供 DBX MCP 能力的宿主。它不保存任何项目的账号、密码或连接信息，而是要求代理按以下顺序工作：
+
+1. 查找或建立连接。
+2. 检查表、视图和 schema。
+3. 使用限定条件执行读取查询。
+4. 对写入、删除、DDL 或大范围更新先进行风险确认。
+5. 写入后重新查询受影响记录、计数或完整性条件。
+
+如果 DBX MCP 不可用，Skill 会要求先发现相应能力，而不是凭空假设数据库连接或凭据。
+
+## clarifying-development-requirements 工作方式
+
+该 Skill 面向“不同答案会明显改变实现结果”的开发请求。它会：
+
+1. 区分用户已确认的目标、已观察到的当前事实、建议默认值与待确认事项。
+2. 先进行安全的只读调查，避免向用户重复询问可从项目中发现的信息。
+3. 按影响、未知程度与不可逆性优先澄清高风险决策。
+4. 将需求确认、工作区修改授权和仓库/外部系统授权分别处理。
+5. 在信息充分后输出带验收标准、范围和非目标的结构化需求。
+
+对于清晰、局部、可逆的请求，它不会为了“完整”而阻塞实施。
 
 ## 目录结构
 
@@ -84,37 +140,17 @@ skills 是一个开源的通用 AI 助手技能项目，用于沉淀、组织和
     │   └── openai.yaml
     └── assets/
         ├── AGENTS.template.md
-        └── CONVENTIONS.template.md
+        ├── CONVENTIONS.template.md
+        └── DISCOVERY.template.md
 ```
 
-## 使用方式
+## 兼容性与边界
 
-将本仓库中的 skill 安装或复制到对应 AI 助手的 Skills 目录后，即可在支持 Skills 的环境中调用。
-
-例如：
-
-```text
-Use $project-conventions to generate CONVENTIONS.md and AGENTS.md for this project.
-```
-
-AI 助手会读取目标仓库结构，识别项目类型，并根据实际文件、框架、目录和验证方式生成项目专属说明。
-
-也可以使用 `dbx-mcp` 处理数据库任务：
-
-```text
-Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
-```
-
-AI 助手会优先使用 DBX MCP 工具查看连接、表结构和 schema，再根据任务执行查询、打开 DBX UI 或写入数据，并在写入后反查校验结果。
-
-当开发需求仍然模糊或不完整时，可以使用 `clarifying-development-requirements`：
-
-```text
-Use $clarifying-development-requirements to clarify this development idea into an actionable and testable requirement.
-```
-
-AI 助手会逐轮确认最关键的未知事项，在满足完成门槛后输出结构化开发需求，并在用户确认前避免修改代码或外部状态。
+- 核心指令以 `SKILL.md` 提供，目标是可迁移到支持 Skills 或等价指令机制的 AI 助手。
+- 仓库中存在的 `agents/openai.yaml` 仅是某类宿主可使用的可选界面元数据，不是使用 Skill 的前置依赖。
+- 不同宿主的安装位置、自动发现机制、工具命名与调用语法可能不同；导入前请查阅对应宿主的说明。
+- `dbx-mcp` 依赖 DBX MCP 及相应数据库访问权限；其余 Skills 不要求特定外部服务。
 
 ## License
 
-本仓库当前未包含独立的 `LICENSE` 文件。正式发布开源版本前，建议补充明确的开源协议。
+本仓库当前未包含独立的 `LICENSE` 文件。正式发布或允许他人再分发前，建议补充明确的开源协议。

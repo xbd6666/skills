@@ -1,6 +1,6 @@
 ---
 name: project-conventions
-description: Use when creating or updating project convention docs such as CONVENTIONS.md or AGENTS.md for any repo type, including frontend apps, backend services, libraries, CLIs, data or ML projects, monorepos, layered architectures, module boundaries, coding rules, dependency directions, or AI coding-agent instructions.
+description: Use when auditing, proposing, creating, or updating CONVENTIONS.md and AGENTS.md for any repository type. Use it to establish evidence-backed project rules, scoped document layouts, and parent-to-child convention inheritance for frontend apps, backend services, libraries, CLIs, data or ML projects, monorepos, and layered architectures.
 ---
 
 # Project Conventions
@@ -11,18 +11,49 @@ Create concise, project-specific `CONVENTIONS.md` and `AGENTS.md` files that hel
 
 Core rule: infer the project's shape first, then write conventions for that shape. Do not force every project into a layered architecture model.
 
+## Request Contract
+
+Resolve the request before inspecting or editing files:
+
+| Field | Values | Default |
+| --- | --- | --- |
+| Mode | audit, propose, apply | propose unless the user explicitly asks to create, update, or write files |
+| Scope | repository root, a module path, or auto | auto |
+| Layout | root only, root plus modules, module only, or auto | auto |
+| Existing-document policy | preserve, update, replace | preserve |
+| Language | match repository, or a requested language | match repository |
+
+- In audit mode, inspect existing convention documents and report gaps without changing files.
+- In propose mode, return a discovery report and a scoped change plan. Do not create or modify files.
+- In apply mode, create or update only the resolved files. Treat a request to create, generate, update, or write documentation as apply authorization. Do not replace existing documents unless the user explicitly requests replacement.
+- With preserve, leave existing convention documents unchanged and create only missing documents. With update, make minimal evidence-backed edits while preserving their tone and structure. With replace, rewrite only documents explicitly named by the user.
+- When the user explicitly asks to update existing documents, resolve the existing-document policy as update.
+- If scope, layout, or overwrite behavior would materially change the output and cannot be inferred from evidence, stop at a proposal and ask one focused question.
+
+## Evidence-Backed Discovery
+
+Before writing a rule, collect repository evidence. Use assets/DISCOVERY.template.md as the response shape.
+
+1. Record the requested mode, scope, layout, language, and existing-document policy.
+2. List relevant files and directories, including existing convention documents from the repository root through the target scope.
+3. Record observations as path or command output, the conclusion drawn, and the convention impact.
+4. Separate observed facts from assumptions and unresolved questions.
+
+Do not invent validation commands, ownership boundaries, dependency rules, or framework choices. If a needed fact is not evidenced, omit the rule or label it as a question for the user.
+
 ## Workflow
 
-1. Inspect the repository before writing:
+1. Resolve the request contract.
+2. Inspect the repository:
    - list top-level folders and project files
    - read existing `README.md`, `CONVENTIONS.md`, `AGENTS.md`, package manifests, build files, config files, and docs
    - identify languages, frameworks, entrypoints, tests, generated outputs, deployment surfaces, and dependency directions
-2. Classify the project or module archetype from evidence.
-3. Choose the convention dimensions that matter for that archetype.
-4. Propose the convention-file layout and let the user choose before creating new files, unless the user already specified the layout or the task is only updating existing docs in place.
-5. Generate or update `CONVENTIONS.md` for durable human/project rules.
-6. Generate or update `AGENTS.md` as the short agent-facing entrypoint for that scope.
-7. Re-read the generated docs and check for conflicts, stale paths, vague placeholders, and boundary leakage.
+3. Produce the evidence-backed discovery report.
+4. Classify the project or module archetype from evidence.
+5. Choose the convention dimensions and document layout that fit that archetype.
+6. In propose mode, return the recommended layout, files that would change, and a concise diff summary; wait for apply authorization.
+7. In apply mode, generate or update `CONVENTIONS.md` for durable human/project rules and `AGENTS.md` as the short agent-facing entrypoint for that scope.
+8. Re-read the generated docs and check for conflicts, stale paths, vague placeholders, and boundary leakage.
 
 When existing convention docs are present, preserve their tone, language, section style, and naming choices unless the user asks for a rewrite.
 
@@ -111,12 +142,24 @@ Every scoped `AGENTS.md` should usually contain:
 Default rule:
 
 ```markdown
-修改本目录下任何文件前，先阅读并遵守同目录的 `CONVENTIONS.md`。
+修改本目录下任何文件前，先按从仓库根目录到本目录的顺序阅读并遵守所有适用的约定文档。
 ```
 
-If `AGENTS.md` and `CONVENTIONS.md` conflict, make `CONVENTIONS.md` authoritative unless the user explicitly wants agent-only overrides.
+If a same-directory `AGENTS.md` and `CONVENTIONS.md` conflict, make `CONVENTIONS.md` authoritative. Update `CONVENTIONS.md` when a durable rule needs to change.
 
 Use `assets/AGENTS.template.md` only as a shape guide. Keep the final file short.
+
+## Document Resolution and Precedence
+
+For a target file, discover every CONVENTIONS.md and AGENTS.md from the repository root to the target directory, then read them from outermost to innermost.
+
+- Parent CONVENTIONS.md files establish defaults for child scopes.
+- A child CONVENTIONS.md can add or override a parent rule only when it identifies the overridden topic in an explicit "Overrides" or "覆盖项" section.
+- A same-directory CONVENTIONS.md is authoritative over the same-directory AGENTS.md. AGENTS.md is a concise operational entrypoint and must not silently contradict its CONVENTIONS.md.
+- A child AGENTS.md may add local execution guardrails, but it must link to or name the parent rules it refines.
+- If documents conflict without an explicit local override, report the conflict and preserve it for user resolution. Do not invent a precedence rule.
+
+When creating module-level documents, include their scope, parent convention path, and explicit overrides. Do not repeat parent rules unless repetition prevents a high-risk mistake.
 
 ## Root vs Module Strategy
 
@@ -125,7 +168,7 @@ Use `assets/AGENTS.template.md` only as a shape guide. Keep the final file short
 - Root `AGENTS.md`: use as the first agent entrypoint; it should route agents to relevant module docs.
 - Module `AGENTS.md`: use when mistakes in that folder are expensive and local rules must be visible before edits.
 
-Before creating new convention docs, recommend one layout from evidence and ask the user to choose:
+Choose one layout from evidence:
 
 | Choice | Use when | Creates |
 | --- | --- | --- |
@@ -133,7 +176,7 @@ Before creating new convention docs, recommend one layout from evidence and ask 
 | Root plus modules | Monorepos, hybrid repos, layered systems, or multiple apps/packages | root docs plus targeted module docs |
 | Module only | The user targets one subfolder or wants local rules without repo-wide policy | scoped `CONVENTIONS.md` and `AGENTS.md` in that folder |
 
-If one layout is clearly best, mark it as recommended. If the user asks to proceed without confirmation, apply the recommended layout and state the assumption.
+In propose mode, mark one layout as recommended and present the alternatives. In apply mode, use the user's requested layout; if auto is clearly best, state the assumption in the discovery report before writing.
 
 For small repos, one root `CONVENTIONS.md` plus one root `AGENTS.md` is enough.
 
@@ -160,9 +203,12 @@ For small repos, one root `CONVENTIONS.md` plus one root `AGENTS.md` is enough.
 
 Before finishing:
 
+- state the resolved request contract and the files changed or proposed
+- include the discovery report or a concise evidence matrix in the response
 - list generated or changed files
 - scan for leftover placeholders
 - confirm every referenced path exists or is intentionally illustrative
 - confirm each `AGENTS.md` points to the correct `CONVENTIONS.md`
+- confirm parent and child documents follow the declared inheritance and override rules
 - confirm the docs do not force an archetype contradicted by the repo
 - state that no build/tests were run when only documentation changed
