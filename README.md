@@ -17,7 +17,7 @@
 | --- | --- | --- | --- |
 | [`project-conventions`](./project-conventions/SKILL.md) | 创建、审查或更新项目规范文档 | 需要 `CONVENTIONS.md`、`AGENTS.md`，或要梳理目录职责和架构边界 | 默认先提案；规则必须有仓库证据；子模块只能显式覆盖父级规则 |
 | [`dbx-mcp`](./dbx-mcp/SKILL.md) | 通过 DBX MCP 安全地检查和操作数据库 | 查看连接、检查 schema、编写/执行 SQL、导入结构化数据 | 先发现连接与 schema；高风险写操作须有明确确认；写后复查 |
-| [`product-development-workflow`](./product-development-workflow/SKILL.md) | 从问题发现到可实施开发需求的完整分阶段工作流 | 产品或开发请求的问题、方案或交付边界尚不明确 | 一个公开入口按阶段分流；保留证据、用户决策与执行授权边界 |
+| [`product-development-workflow`](./product-development-workflow/SKILL.md) | 从问题发现到经审阅 Spec 的完整分阶段工作流 | 产品或开发请求的问题、方案、交付边界或技术契约尚不明确 | 一个公开入口按阶段分流；保留证据、用户决策与执行授权边界 |
 
 ## 快速开始
 
@@ -57,7 +57,7 @@ Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md
 
 Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
-使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案或需求澄清阶段。
+使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案、需求澄清或规格编写阶段。
 ```
 
 #### product-development-workflow：按当前状态调用
@@ -85,7 +85,14 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 我们决定在现有后台增加“聊天记录导出”功能，但尚未确定谁可以导出、数据范围、脱敏规则、失败提示和验收标准。请先只读检查现有权限与筛选逻辑，再逐项确认高风险决策；暂不修改文件。
 ```
 
-**4. 直接实施：目标、范围和验收都已明确**
+**4. 编写开发规格：需求已确认，但技术与行为契约尚未明确**
+
+```text
+使用 $product-development-workflow 编写规格。
+聊天记录导出的用户、权限、范围、脱敏规则和验收标准已经确认；请只读检查现有导出、权限和接口模式，定义组件职责、数据与接口契约、失败语义和验证策略。先产出供 writing-plans 使用的 Spec，不修改代码或创建提交。
+```
+
+**5. 直接实施：目标、范围和验收都已明确**
 
 ```text
 使用 $product-development-workflow 实现以下低风险修改：将管理后台用户列表默认日期范围改为最近七个自然日，重置筛选时恢复同一范围，并补充相应测试。只修改前端筛选默认值和测试，不创建分支、不提交、不调用外部系统。
@@ -143,13 +150,16 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 ## product-development-workflow 工作方式
 
-该 Skill 对外只有一个入口，内部按当前最早的关键未知项进入三个独立阶段：
+该 Skill 对外只有一个入口，内部按当前最早的关键未知项进入四个阶段：
 
 1. **产品需求探索**：确认用户、场景、痛点和价值机会，并形成可验证的假设。
 2. **方案头脑风暴**：针对已确认的问题，生成、比较并收敛不同的产品、流程或技术方向。
 3. **开发需求澄清**：将已选方向整理为带范围、业务规则、验收标准和授权边界的可执行需求。
+4. **编写开发规格**：将已确认需求转为经审阅的技术与行为 Spec，供 `writing-plans` 进一步拆成文件级实施计划。
 
 阶段文档只在需要时读取，避免把探索、方案与实施需求混成同一份结论。清晰、局部、可逆的修改不会因为流程而被阻塞。
+
+阶段四只处理技术与行为契约，不重开产品或业务决策，也不写任务清单、实施代码或提交。Spec 经审阅后，再使用外部的 `writing-plans` 生成文件级实施计划；`product-development-workflow` 始终是这四个前置阶段的唯一公开入口。
 
 ## 目录结构
 
@@ -166,7 +176,8 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 │   └── references/
 │       ├── product-discovery.md
 │       ├── brainstorming.md
-│       └── clarifying-development-requirements.md
+│       ├── clarifying-development-requirements.md
+│       └── writing-specs.md
 └── project-conventions/
     ├── SKILL.md
     ├── agents/
