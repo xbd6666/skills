@@ -1,0 +1,4 @@
+interface:
+  display_name: "需求探索"
+  short_description: "面向未知问题挖掘用户痛点、机会假设与最小验证行动路径"
+  default_prompt: "Use $product-discovery to uncover latent needs and create a validation plan."

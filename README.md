@@ -17,7 +17,7 @@
 | --- | --- | --- | --- |
 | [`project-conventions`](./project-conventions/SKILL.md) | 创建、审查或更新项目规范文档 | 需要 `CONVENTIONS.md`、`AGENTS.md`，或要梳理目录职责和架构边界 | 默认先提案；规则必须有仓库证据；子模块只能显式覆盖父级规则 |
 | [`dbx-mcp`](./dbx-mcp/SKILL.md) | 通过 DBX MCP 安全地检查和操作数据库 | 查看连接、检查 schema、编写/执行 SQL、导入结构化数据 | 先发现连接与 schema；高风险写操作须有明确确认；写后复查 |
-| [`clarifying-development-requirements`](./clarifying-development-requirements/SKILL.md) | 将模糊开发想法澄清为可实施、可验收的需求 | 功能、缺陷、重构或 UI 请求存在实质歧义 | 先做只读调查；只询问会改变结果的关键决策；区分需求确认与执行授权 |
+| [`product-development-workflow`](./product-development-workflow/SKILL.md) | 从问题发现到可实施开发需求的完整分阶段工作流 | 产品或开发请求的问题、方案或交付边界尚不明确 | 一个公开入口按阶段分流；保留证据、用户决策与执行授权边界 |
 
 ## 快速开始
 
@@ -57,7 +57,38 @@ Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md
 
 Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
-使用 $clarifying-development-requirements 澄清这项不完整的开发需求，并整理为可执行、可验收的说明。
+使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案或需求澄清阶段。
+```
+
+#### product-development-workflow：按当前状态调用
+
+不需要预先判断自己处于哪个阶段。说明已知事实、当前不确定项和希望做出的决定即可；Skill 会从最早的关键未知项开始。
+
+**1. 产品需求探索：问题或价值尚未确认**
+
+```text
+使用 $product-development-workflow 帮我判断是否值得为诊所前台做“患者到诊提醒”。
+目前只有同事的零散反馈，还不清楚哪些岗位最受影响、现有做法的代价，以及应先验证什么；请先不要设计功能或修改文件。
+```
+
+**2. 方案头脑风暴：问题已确认，但不知道怎么做**
+
+```text
+使用 $product-development-workflow 设计解决方案。
+我们已确认销售在跟进客户时很难找到历史沟通记录；请比较复用现有 CRM 搜索、增加客户时间线和引入 AI 摘要三种方向，并说明各自价值、成本、风险和最小验证方式。
+```
+
+**3. 开发需求澄清：方向已选，但交付边界不完整**
+
+```text
+使用 $product-development-workflow 澄清需求。
+我们决定在现有后台增加“聊天记录导出”功能，但尚未确定谁可以导出、数据范围、脱敏规则、失败提示和验收标准。请先只读检查现有权限与筛选逻辑，再逐项确认高风险决策；暂不修改文件。
+```
+
+**4. 直接实施：目标、范围和验收都已明确**
+
+```text
+使用 $product-development-workflow 实现以下低风险修改：将管理后台用户列表默认日期范围改为最近七个自然日，重置筛选时恢复同一范围，并补充相应测试。只修改前端筛选默认值和测试，不创建分支、不提交、不调用外部系统。
 ```
 
 ## project-conventions 工作方式
@@ -110,30 +141,32 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 如果 DBX MCP 不可用，Skill 会要求先发现相应能力，而不是凭空假设数据库连接或凭据。
 
-## clarifying-development-requirements 工作方式
+## product-development-workflow 工作方式
 
-该 Skill 面向“不同答案会明显改变实现结果”的开发请求。它会：
+该 Skill 对外只有一个入口，内部按当前最早的关键未知项进入三个独立阶段：
 
-1. 区分用户已确认的目标、已观察到的当前事实、建议默认值与待确认事项。
-2. 先进行安全的只读调查，避免向用户重复询问可从项目中发现的信息。
-3. 按影响、未知程度与不可逆性优先澄清高风险决策。
-4. 将需求确认、工作区修改授权和仓库/外部系统授权分别处理。
-5. 在信息充分后输出带验收标准、范围和非目标的结构化需求。
+1. **产品需求探索**：确认用户、场景、痛点和价值机会，并形成可验证的假设。
+2. **方案头脑风暴**：针对已确认的问题，生成、比较并收敛不同的产品、流程或技术方向。
+3. **开发需求澄清**：将已选方向整理为带范围、业务规则、验收标准和授权边界的可执行需求。
 
-对于清晰、局部、可逆的请求，它不会为了“完整”而阻塞实施。
+阶段文档只在需要时读取，避免把探索、方案与实施需求混成同一份结论。清晰、局部、可逆的修改不会因为流程而被阻塞。
 
 ## 目录结构
 
 ```text
 .
-├── clarifying-development-requirements/
-│   ├── SKILL.md
-│   └── agents/
-│       └── openai.yaml
 ├── dbx-mcp/
 │   ├── SKILL.md
 │   └── agents/
 │       └── openai.yaml
+├── product-development-workflow/
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── references/
+│       ├── product-discovery.md
+│       ├── brainstorming.md
+│       └── clarifying-development-requirements.md
 └── project-conventions/
     ├── SKILL.md
     ├── agents/
