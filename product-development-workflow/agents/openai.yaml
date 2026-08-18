@@ -1,4 +1,4 @@
 interface:
   display_name: "产品开发工作流"
-  short_description: "从问题发现、方案选择和需求澄清到可审阅技术规格的分阶段工作流"
-  default_prompt: "使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案、需求澄清或规格编写阶段。"
+  short_description: "从模糊想法到有证据支持的开发交付"
+  default_prompt: "使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案、需求澄清、规格、实施计划、开发执行或验证验收阶段。"

@@ -17,7 +17,7 @@
 | --- | --- | --- | --- |
 | [`project-conventions`](./project-conventions/SKILL.md) | 创建、审查或更新项目规范文档 | 需要 `CONVENTIONS.md`、`AGENTS.md`，或要梳理目录职责和架构边界 | 默认先提案；规则必须有仓库证据；子模块只能显式覆盖父级规则 |
 | [`dbx-mcp`](./dbx-mcp/SKILL.md) | 通过 DBX MCP 安全地检查和操作数据库 | 查看连接、检查 schema、编写/执行 SQL、导入结构化数据 | 先发现连接与 schema；高风险写操作须有明确确认；写后复查 |
-| [`product-development-workflow`](./product-development-workflow/SKILL.md) | 从问题发现到经审阅 Spec 的完整分阶段工作流 | 产品或开发请求的问题、方案、交付边界或技术契约尚不明确 | 一个公开入口按阶段分流；保留证据、用户决策与执行授权边界 |
+| [`product-development-workflow`](./product-development-workflow/SKILL.md) | 从问题发现到有证据支持的开发交付 | 产品或开发请求的问题、方案、交付边界、技术契约、实施计划或完成状态尚不明确 | 一个公开入口按阶段分流；保留证据、用户决策、追溯关系与执行授权边界 |
 
 ## 快速开始
 
@@ -57,7 +57,7 @@ Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md
 
 Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
-使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案、需求澄清或规格编写阶段。
+使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案、需求澄清、规格、实施计划、开发执行或验证验收阶段。
 ```
 
 #### product-development-workflow：按当前状态调用
@@ -89,10 +89,31 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 ```text
 使用 $product-development-workflow 编写规格。
-聊天记录导出的用户、权限、范围、脱敏规则和验收标准已经确认；请只读检查现有导出、权限和接口模式，定义组件职责、数据与接口契约、失败语义和验证策略。先产出供 writing-plans 使用的 Spec，不修改代码或创建提交。
+聊天记录导出的用户、权限、范围、脱敏规则和验收标准已经确认；请只读检查现有导出、权限和接口模式，定义组件职责、数据与接口契约、失败语义和验证策略。先产出供阶段五使用的 Spec，不修改代码或创建提交。
 ```
 
-**5. 直接实施：目标、范围和验收都已明确**
+**5. 编写实施计划：Spec 已确认，但文件级任务尚未确定**
+
+```text
+使用 $product-development-workflow 编写实施计划。
+聊天记录导出 Spec 已确认；请调查相关文件和测试，建立需求、Spec、任务与验证的追溯关系，形成文件级计划。只保存计划，不修改生产代码，不创建分支或提交。
+```
+
+**6. 执行开发计划：计划已就绪且已授权修改工作区**
+
+```text
+使用 $product-development-workflow 执行已确认的聊天记录导出实施计划。
+允许修改计划列出的工作区文件并运行本地验证；不创建分支、不提交、不推送、不部署。发现计划、Spec 或业务规则有问题时回到对应阶段，不要在代码中自行改变。
+```
+
+**7. 验证与验收：实现结束，但尚未形成完成证据**
+
+```text
+使用 $product-development-workflow 验证聊天记录导出是否可交付。
+重新执行能证明需求、构建、测试和权限边界的验证，区分定向结果、完整测试和预存失败，并输出需求到证据的追溯及待人工验收项。不要提交、推送或部署。
+```
+
+**清晰任务直接实施：跳过不必要的前置文档，但不能跳过验证**
 
 ```text
 使用 $product-development-workflow 实现以下低风险修改：将管理后台用户列表默认日期范围改为最近七个自然日，重置筛选时恢复同一范围，并补充相应测试。只修改前端筛选默认值和测试，不创建分支、不提交、不调用外部系统。
@@ -150,16 +171,19 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 ## product-development-workflow 工作方式
 
-该 Skill 对外只有一个入口，内部按当前最早的关键未知项进入四个阶段：
+该 Skill 对外只有一个入口，内部按当前最早的关键未知项进入七个阶段：
 
 1. **产品需求探索**：确认用户、场景、痛点和价值机会，并形成可验证的假设。
 2. **方案头脑风暴**：针对已确认的问题，生成、比较并收敛不同的产品、流程或技术方向。
 3. **开发需求澄清**：将已选方向整理为带范围、业务规则、验收标准和授权边界的可执行需求。
-4. **编写开发规格**：将已确认需求转为经审阅的技术与行为 Spec，供 `writing-plans` 进一步拆成文件级实施计划。
+4. **编写开发规格**：将已确认需求转为经审阅的技术与行为 Spec。
+5. **编写实施计划**：把已确认需求和适用的 Spec 转为带文件职责、任务依赖、验证方式和追溯关系的可执行计划。
+6. **执行开发计划**：在授权范围内实施任务，完成任务级自检和适用评审；发现上游错误时回退到正确阶段。
+7. **验证与验收**：用当前证据验证需求、Spec、质量和验收标准，形成明确的开发交付结论。
 
-阶段文档只在需要时读取，避免把探索、方案与实施需求混成同一份结论。清晰、局部、可逆的修改不会因为流程而被阻塞。
+阶段文档只在需要时读取，避免把探索、决策、计划、实施结果和完成证据混成同一份结论。清晰、局部、可逆的修改可以直接进入阶段六，但必须经过阶段七才能声称完成。
 
-阶段四只处理技术与行为契约，不重开产品或业务决策，也不写任务清单、实施代码或提交。Spec 经审阅后，再使用外部的 `writing-plans` 生成文件级实施计划；`product-development-workflow` 始终是这四个前置阶段的唯一公开入口。
+阶段五至七借鉴了 Superpowers 的实施计划、任务级执行与评审、完成前验证思想，并按本仓库的可移植性和授权边界重新设计；不要求安装 Superpowers，也不默认创建 worktree、分支、提交、推送或部署。参考：[obra/superpowers](https://github.com/obra/superpowers)。
 
 ## 目录结构
 
@@ -177,7 +201,10 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 │       ├── product-discovery.md
 │       ├── brainstorming.md
 │       ├── clarifying-development-requirements.md
-│       └── writing-specs.md
+│       ├── writing-specs.md
+│       ├── writing-implementation-plans.md
+│       ├── executing-development-plans.md
+│       └── verification-and-acceptance.md
 └── project-conventions/
     ├── SKILL.md
     ├── agents/
