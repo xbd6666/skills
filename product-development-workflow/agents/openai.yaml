@@ -1,4 +1,4 @@
 interface:
   display_name: "产品开发工作流"
   short_description: "从模糊想法到有证据支持的开发交付"
-  default_prompt: "使用 $product-development-workflow 将这个产品或开发想法分流到探索、方案、需求澄清、规格、实施计划、开发执行或验证验收阶段。"
+  default_prompt: "使用 $product-development-workflow 先只读分流并反馈当前理解；初始需求不授权写入，只有进入授权检查点并收到用户后续肯定回复后才能修改工作区。"
