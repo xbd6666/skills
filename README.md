@@ -15,7 +15,7 @@
 
 | Skill | 解决的问题 | 典型触发 | 关键约束 |
 | --- | --- | --- | --- |
-| [`project-conventions`](./project-conventions/SKILL.md) | 创建、审查或更新项目规范文档 | 需要 `CONVENTIONS.md`、`AGENTS.md`，或要梳理目录职责和架构边界 | 默认先提案；规则必须有仓库证据；子模块只能显式覆盖父级规则 |
+| [`project-conventions`](./project-conventions/SKILL.md) | 创建、审查或更新项目规范文档 | 需要 `CONVENTIONS.md`、`AGENTS.md`，或要梳理目录职责和架构边界 | 使用`审查 / 提案 / 应用`中文模式；默认提案；只有子级 `CONVENTIONS.md` 能显式覆盖父级长期规则 |
 | [`dbx-mcp`](./dbx-mcp/SKILL.md) | 通过 DBX MCP 安全地检查和操作数据库 | 查看连接、检查 schema、编写/执行 SQL、导入结构化数据 | 先发现连接与 schema；高风险写操作须有明确确认；写后复查 |
 | [`product-development-workflow`](./product-development-workflow/SKILL.md) | 从问题发现到有证据支持的开发交付 | 产品或开发请求的问题、方案、交付边界、技术契约、实施计划或完成状态尚不明确 | 一个公开入口按阶段分流；保留证据、用户决策、追溯关系与执行授权边界 |
 
@@ -38,14 +38,28 @@ project-conventions/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml
-└── assets/
-    ├── AGENTS.template.md
-    ├── CONVENTIONS.template.md
-    └── DISCOVERY.template.md
+├── references/
+│   ├── request-contract.md
+│   ├── discovery.md
+│   ├── inheritance.md
+│   └── verification.md
+├── assets/
+│   ├── 审查报告.template.md
+│   ├── 提案报告.template.md
+│   ├── 根级.CONVENTIONS.template.md
+│   ├── 模块.CONVENTIONS.template.md
+│   ├── 根级.AGENTS.template.md
+│   └── 模块.AGENTS.template.md
+└── tests/
+    ├── .gitignore
+    ├── fixtures/
+    │   └── mode-cases.json
+    └── test_skill_contract.py
 ```
 
 - `SKILL.md` 是必需的通用指令入口。
-- `assets/` 中的资源由 Skill 在需要时读取或复用，不能只复制 `SKILL.md`。
+- `references/` 保存按模式和场景读取的详细规则，`assets/` 保存输出模板；使用时应保留两者的相对结构，不能只复制 `SKILL.md`。
+- `tests/` 用于维护者验证中文模式、资源引用和模板职责等关键契约，不是技能运行时依赖。
 - `agents/openai.yaml` 是可选的界面元数据；不识别它的宿主可以忽略，不影响 `SKILL.md` 的核心工作流。
 
 > 以下示例使用 `$skill-name` 形式调用。若你的宿主采用其他调用语法，请按其文档替换触发方式。
@@ -53,7 +67,7 @@ project-conventions/
 ### 3. 调用 Skill
 
 ```text
-Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md for this project.
+使用 $project-conventions 为当前项目提案有证据支持的 CONVENTIONS.md 与 AGENTS.md；本轮不要写入文件。
 
 Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
@@ -130,39 +144,40 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 `project-conventions` 用于把仓库中实际存在的结构、构建方式和边界，整理为人类与 AI 代理都能遵守的项目约定。
 
-### 三种模式
+### 三种中文模式
 
 | 模式 | 行为 | 是否写入文件 |
 | --- | --- | --- |
-| `audit` | 检查现有约定文档，报告缺口与冲突 | 否 |
-| `propose` | 输出发现报告、推荐布局与变更摘要 | 否；默认模式 |
-| `apply` | 按已确认的范围创建或更新约定文档 | 是 |
+| `审查` | 检查现有约定、冲突、缺口和实现漂移 | 否 |
+| `提案` | 输出发现报告、推荐布局、准确文件清单与变更摘要 | 否；默认模式 |
+| `应用` | 按已解析范围创建或最小更新约定文档 | 仅写入已解析的约定文档 |
 
-明确要求“生成”“创建”“更新”或“写入”时，Skill 才会进入 `apply`。对于已有文档，还可按 `preserve`、`update` 或 `replace` 区分保留、最小更新和明确重写。
+明确要求“生成”“创建”“更新”“写入”或确认上一轮可唯一识别的提案时，Skill 才会进入`应用`。对于已有文档，使用“保留、更新、替换”区分不改现有文件、最小更新和明确重写；约定文档授权不包含代码、Git、数据库、部署或外部系统操作。
 
 ### 生成前的证据链
 
-在形成规则前，Skill 会记录：
+Skill 会先记录用户已明确的契约字段，把需要仓库证据才能判断的值标为“待发现”；完成只读发现后再最终解析范围、布局和语言。形成规则前会记录：
 
 1. 请求的模式、范围、布局、语言和已有文档处理策略。
 2. 从仓库根到目标目录的 `CONVENTIONS.md` 与 `AGENTS.md`。
-3. 每项“证据 → 观察 → 推断 → 规则影响”。
+3. 每项证据的类型、观察事实、反例或冲突、结论状态、规则影响和置信度。
 4. 无法从仓库确认的假设与待确认事项。
 
-因此，未从仓库证实的框架、验证命令、职责边界或依赖方向不会被伪装为既定事实。
+因此，单个实现样本、历史例外或未从仓库证实的框架、验证命令、职责边界与依赖方向不会被伪装为既定事实；文档与实现不一致时先报告漂移，不自行判定哪一方错误。
 
 ### 规范文档的继承
 
 - 父级 `CONVENTIONS.md` 默认适用于子目录。
-- 子模块只可通过 `Overrides` 或“覆盖项”明确覆盖父级规则。
-- 同目录的 `CONVENTIONS.md` 优先于 `AGENTS.md`；后者只保留简短的操作入口与高风险提醒。
-- 发现未显式声明的规则冲突时，Skill 会报告冲突而非自行裁决。
+- 子模块新增局部规则属于扩展，不需要声明覆盖；只有改变父级同一主题时，才在子级 `CONVENTIONS.md` 的“覆盖项”中记录上级文档、主题、规则、理由和适用边界。
+- `AGENTS.md` 只保留规则路由、模块职责与高风险执行护栏，无权建立或覆盖长期规则。
+- 更局部的 `AGENTS.md` 可以增加或收紧护栏，不能放宽父级限制；无法同时满足的冲突会阻止受影响写入并交给用户裁决。
 
 常见产物：
 
 - `CONVENTIONS.md`：面向团队的长期工程约定。
 - `AGENTS.md`：面向代理的短入口说明。
-- 发现报告：本次规则、布局和改动建议所依据的证据。
+- 审查报告：按严重度给出问题、证据、影响和建议，不包含写入计划。
+- 提案报告：给出推荐布局、准确文件清单、规则来源和可唯一确认的应用范围。
 
 ## dbx-mcp 工作方式
 
@@ -222,10 +237,23 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
     ├── SKILL.md
     ├── agents/
     │   └── openai.yaml
-    └── assets/
-        ├── AGENTS.template.md
-        ├── CONVENTIONS.template.md
-        └── DISCOVERY.template.md
+    ├── references/
+    │   ├── request-contract.md
+    │   ├── discovery.md
+    │   ├── inheritance.md
+    │   └── verification.md
+    ├── assets/
+    │   ├── 审查报告.template.md
+    │   ├── 提案报告.template.md
+    │   ├── 根级.CONVENTIONS.template.md
+    │   ├── 模块.CONVENTIONS.template.md
+    │   ├── 根级.AGENTS.template.md
+    │   └── 模块.AGENTS.template.md
+    └── tests/
+        ├── .gitignore
+        ├── fixtures/
+        │   └── mode-cases.json
+        └── test_skill_contract.py
 ```
 
 ## 兼容性与边界

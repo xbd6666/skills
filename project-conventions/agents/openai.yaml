@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Conventions"
   short_description: "Evidence-backed project and agent rules"
-  default_prompt: "Use $project-conventions to propose evidence-backed CONVENTIONS.md and AGENTS.md for this project before writing files."
+  default_prompt: "使用 $project-conventions 为当前项目提案有证据支持的 CONVENTIONS.md 与 AGENTS.md；本轮不要写入文件。"

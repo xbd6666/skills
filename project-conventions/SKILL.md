@@ -1,214 +1,68 @@
 ---
 name: project-conventions
-description: Use when auditing, proposing, creating, or updating CONVENTIONS.md and AGENTS.md for any repository type. Use it to establish evidence-backed project rules, scoped document layouts, and parent-to-child convention inheritance for frontend apps, backend services, libraries, CLIs, data or ML projects, monorepos, and layered architectures.
+description: 审查、提案、创建或更新仓库中的 CONVENTIONS.md 与 AGENTS.md。用于依据真实仓库证据建立项目规则、目录职责、文档布局和父子约定继承关系；不用于修改生产代码或替代产品需求与实施计划。
 ---
 
-# Project Conventions
+# 项目约定
 
-## Overview
+## 目标
 
-Create concise, project-specific `CONVENTIONS.md` and `AGENTS.md` files that help both humans and coding agents preserve architecture boundaries, ownership rules, folder taxonomy, naming, testing, tooling, and implementation habits.
+为具体仓库生成简洁、可执行、可追溯的 `CONVENTIONS.md` 与 `AGENTS.md`，帮助人类和编码代理保持目录职责、架构边界、公共契约、命名、测试、工具和安全要求的一致性。
 
-Core rule: infer the project's shape first, then write conventions for that shape. Do not force every project into a layered architecture model.
+核心原则：先识别仓库真实形态，再为该形态建立约定。不要把所有项目强行解释为分层架构，也不要把偶然实现直接升级为团队规范。
 
-## Request Contract
+## 中文模式
 
-Resolve the request before inspecting or editing files:
+三种公开模式统一使用中文名称：
 
-| Field | Values | Default |
+| 模式 | 适用请求 | 是否写入文件 |
 | --- | --- | --- |
-| Mode | audit, propose, apply | propose unless the user explicitly asks to create, update, or write files |
-| Scope | repository root, a module path, or auto | auto |
-| Layout | root only, root plus modules, module only, or auto | auto |
-| Existing-document policy | preserve, update, replace | preserve |
-| Language | match repository, or a requested language | match repository |
+| `审查` | 检查既有约定、冲突、缺口、漂移或可维护性问题 | 否 |
+| `提案` | 设计文档布局、规则范围和准确的变更清单 | 否 |
+| `应用` | 按已解析范围创建或最小更新约定文档 | 仅写入已解析的约定文档 |
 
-- In audit mode, inspect existing convention documents and report gaps without changing files.
-- In propose mode, return a discovery report and a scoped change plan. Do not create or modify files.
-- In apply mode, create or update only the resolved files. Treat a request to create, generate, update, or write documentation as apply authorization. Do not replace existing documents unless the user explicitly requests replacement.
-- With preserve, leave existing convention documents unchanged and create only missing documents. With update, make minimal evidence-backed edits while preserving their tone and structure. With replace, rewrite only documents explicitly named by the user.
-- When the user explicitly asks to update existing documents, resolve the existing-document policy as update.
-- If scope, layout, or overwrite behavior would materially change the output and cannot be inferred from evidence, stop at a proposal and ask one focused question.
+模式名称不得再用英文替代。模式选择、已有文档策略和范围扩张检查见 [references/request-contract.md](references/request-contract.md)；每次使用本技能都先读取该文件。
 
-## Evidence-Backed Discovery
+## 不可破坏的边界
 
-Before writing a rule, collect repository evidence. Use assets/DISCOVERY.template.md as the response shape.
+- `审查`和`提案`只能进行无副作用的只读发现，不创建文件，不运行会生成产物、访问数据库、调用真实外部服务或改变环境状态的命令。
+- `应用`只授权创建或更新已经解析的 `CONVENTIONS.md`、`AGENTS.md` 及用户明确点名的约定类文档，不授权修改生产代码、测试代码、Git 状态、数据库、部署或外部系统。
+- 读取配置或记录证据时不得输出密钥、令牌、连接字符串、个人信息或生产敏感地址；证据只保留必要路径、字段名和脱敏结论。
+- 现有文档与代码冲突时，不得默认文档过时，也不得默认代码违规；先把冲突列为未决事项。
+- `CONVENTIONS.md` 承载本技能新增或维护的长期项目约定；既有专业工程文档继续维护各自的权威主题。`AGENTS.md` 是短执行入口，无权创建或覆盖长期规则。
+- 保留工作区中的无关改动。若目标约定文档已有未归属的修改，先报告重叠，不覆盖用户工作。
 
-1. Record the requested mode, scope, layout, language, and existing-document policy.
-2. List relevant files and directories, including existing convention documents from the repository root through the target scope.
-3. Record observations as path or command output, the conclusion drawn, and the convention impact.
-4. Separate observed facts from assumptions and unresolved questions.
+## 工作流
 
-Do not invent validation commands, ownership boundaries, dependency rules, or framework choices. If a needed fact is not evidenced, omit the rule or label it as a question for the user.
+1. 读取 [references/request-contract.md](references/request-contract.md)，记录用户已经明确的字段和需要通过发现推断的字段。
+2. 按 [references/discovery.md](references/discovery.md) 做有边界的证据发现，区分明确规则、强制配置、重复惯例、例外、冲突和假设。
+3. 发现完成后最终解析模式、范围、布局、已有文档策略和输出语言。
+4. 如果存在父子目录文档、模块级布局或规则冲突，读取 [references/inheritance.md](references/inheritance.md)。
+5. 选择与模式对应的输出：
+   - `审查`：使用 [assets/审查报告.template.md](assets/审查报告.template.md) 的结构，只报告问题与证据。
+   - `提案`：使用 [assets/提案报告.template.md](assets/提案报告.template.md) 的结构，给出准确文件清单和变更摘要后停止。
+   - `应用`：根据根级或模块级角色选择模板，实施最小、证据充分的文档变更。
+6. 按 [references/verification.md](references/verification.md) 完成模式对应的验证和交付说明。
 
-## Workflow
+## 文件角色与模板
 
-1. Resolve the request contract.
-2. Inspect the repository:
-   - list top-level folders and project files
-   - read existing `README.md`, `CONVENTIONS.md`, `AGENTS.md`, package manifests, build files, config files, and docs
-   - identify languages, frameworks, entrypoints, tests, generated outputs, deployment surfaces, and dependency directions
-3. Produce the evidence-backed discovery report.
-4. Classify the project or module archetype from evidence.
-5. Choose the convention dimensions and document layout that fit that archetype.
-6. In propose mode, return the recommended layout, files that would change, and a concise diff summary; wait for apply authorization.
-7. In apply mode, generate or update `CONVENTIONS.md` for durable human/project rules and `AGENTS.md` as the short agent-facing entrypoint for that scope.
-8. Re-read the generated docs and check for conflicts, stale paths, vague placeholders, and boundary leakage.
-
-When existing convention docs are present, preserve their tone, language, section style, and naming choices unless the user asks for a rewrite.
-
-## File Roles
-
-| File | Purpose | Typical length |
+| 文件 | 角色 | 模板 |
 | --- | --- | --- |
-| `CONVENTIONS.md` | Durable rules for project/module organization, responsibilities, dependency direction, naming, comments, tests, tooling, and standard steps. | Medium |
-| `AGENTS.md` | Short instructions that coding agents should read before editing that scope. Usually points to `CONVENTIONS.md` and repeats only the highest-risk boundaries. | Short |
+| 根级 `CONVENTIONS.md` | 仓库级边界、包或模块地图、共享命令、公共规则和文档权威关系 | [assets/根级.CONVENTIONS.template.md](assets/根级.CONVENTIONS.template.md) |
+| 模块级 `CONVENTIONS.md` | 模块职责、局部扩展、显式覆盖、公共契约和验证方式 | [assets/模块.CONVENTIONS.template.md](assets/模块.CONVENTIONS.template.md) |
+| 根级 `AGENTS.md` | 代理第一入口、根规则入口和模块文档路由 | [assets/根级.AGENTS.template.md](assets/根级.AGENTS.template.md) |
+| 模块级 `AGENTS.md` | 当前模块的规则读取顺序和高风险执行护栏 | [assets/模块.AGENTS.template.md](assets/模块.AGENTS.template.md) |
 
-`AGENTS.md` should not duplicate every rule from `CONVENTIONS.md`. It should make the agent do the right first thing and avoid the most expensive mistakes.
+模板只是结构引导，不是必须填满的表单。删除不适用章节，不得用泛化内容或 `TODO`、`TBD`、空占位符凑齐模板。输出语言不是中文时，翻译模板中的所有固定文本，不得生成中英混杂文档。
 
-## Archetype Detection
+## 文档内容原则
 
-Use actual repo evidence first. These archetypes are starting points, not boxes to force:
+- 每条规则应能回答“把什么放在哪里”“允许或禁止什么”“新增能力按什么步骤”“如何验证”。
+- 规则必须指向真实目录、文件、类型、命令、配置或风险；没有证据时省略，或明确列为待确认事项。
+- 不重复 `README.md`、`CONTRIBUTING.md`、`ARCHITECTURE.md`、`.editorconfig`、`CODEOWNERS` 等文档已经权威维护的内容；在 `CONVENTIONS.md` 中标明权威来源并链接。
+- `AGENTS.md` 保持短小，只路由适用规则、说明模块职责并强调高风险执行护栏。长期规则发生变化时，更新 `CONVENTIONS.md`。
+- 混合仓库可以同时具有多个项目原型；只为风险高、职责独立或公共契约明显不同的模块创建局部文档。
 
-| Evidence | Likely archetype | Main convention emphasis |
-| --- | --- | --- |
-| `src/components`, `pages`, `app`, `vite`, `next`, `react`, `vue`, `svelte` | Frontend app | routes, components, state, API clients, styles, assets, accessibility, visual QA |
-| `controllers`, `routes`, `middleware`, `server`, `Program.cs`, `appsettings`, `OpenAPI` | Backend/API service | endpoints, request/response contracts, auth, validation, services, config, observability |
-| `application`, `domain`, `infrastructure`, `framework`, `web`, `api` | Layered architecture | dependency direction, layer responsibilities, ports/adapters, DTOs, persistence boundaries |
-| `packages/*`, `apps/*`, `libs/*`, workspace manifests | Monorepo | package ownership, shared code, build/test commands, cross-package dependencies, release boundaries |
-| `src`, `lib`, public exports, package manifest, no app entrypoint | Library/package | public API surface, compatibility, examples, tests, versioning, dependency policy |
-| `cli`, `commands`, `bin`, argument parser, terminal output | CLI/tooling project | commands, flags, config, stdout/stderr, exit codes, idempotency, tests |
-| `notebooks`, `data`, `models`, `pipelines`, `features` | Data/ML project | data provenance, pipeline stages, experiments, artifacts, reproducibility, secrets |
-| `infra`, `terraform`, `helm`, `k8s`, `docker`, workflows | Infrastructure/DevOps | environments, state, secrets, rollout safety, generated files, validation commands |
-| `mobile`, `android`, `ios`, `react-native`, `flutter` | Mobile app | screens, navigation, platform folders, assets, permissions, release config |
-| `docs`, `content`, `site`, `mkdocs`, `docusaurus` | Docs/content site | content structure, frontmatter, assets, publishing, link checks |
+## 完成条件
 
-For hybrid repos, write repo-level conventions plus targeted module-level conventions. Do not pretend the whole repo has one architecture if it clearly has several.
-
-## Convention Dimensions
-
-Select only relevant dimensions:
-
-| Dimension | Include when |
-| --- | --- |
-| Scope and ownership | The repo has modules, packages, layers, teams, or repeated folder patterns |
-| Folder organization | New files need predictable placement |
-| Boundary rules | Code can easily leak across layers, packages, runtime surfaces, or ownership zones |
-| Public contracts | APIs, components, CLI commands, schemas, package exports, or file formats are user-facing |
-| Data and persistence | The project touches databases, files, datasets, migrations, generated records, or durable state |
-| Config and secrets | Runtime behavior depends on config, env vars, keys, credentials, or deployment targets |
-| Testing and verification | There are known test commands, visual QA, snapshots, type checks, or build gates |
-| Generated artifacts | Build outputs, migrations, clients, docs, or model artifacts should not be hand-edited |
-| Style and comments | The repo has strong language, syntax, naming, formatting, or documentation preferences |
-| Security and privacy | Auth, authorization, PII, secrets, tenant boundaries, or unsafe inputs are present |
-
-## CONVENTIONS.md Content
-
-Include sections useful for the specific project or module:
-
-- project/module purpose
-- folder organization with a short tree
-- responsibility and ownership boundaries
-- dependency direction or allowed imports when relevant
-- naming, namespace, export, route, command, or file conventions
-- common type/component/service patterns
-- standard steps for adding a new feature in that scope
-- config, data, persistence, security, serialization, or deployment rules when relevant
-- test and verification commands when stable
-- coding syntax preferences when the repo already has them
-- comment/documentation requirements when the repo expects them
-
-Avoid:
-
-- generic style advice that could apply to any repo
-- long architecture theory
-- repeating implementation details that will drift quickly
-- rules for folders outside the file's scope unless they define a boundary
-- placeholders such as `TODO`, `TBD`, `{Feature}` unless they are part of an intentional pattern example
-- forcing layer words like "application", "domain", or "infrastructure" onto projects that do not use them
-
-Use `assets/CONVENTIONS.template.md` only as a shape guide. Replace placeholders with repository-specific content.
-
-## AGENTS.md Content
-
-Every scoped `AGENTS.md` should usually contain:
-
-1. `适用范围` or `Scope`
-2. `工作前必读` or `Before Editing`
-3. a short project/module responsibility section
-4. the most important do/don't boundaries
-5. any high-risk local requirements, such as route authorization, generated-file rules, public API compatibility, database annotations, or visual QA
-
-Default rule:
-
-```markdown
-修改本目录下任何文件前，先按从仓库根目录到本目录的顺序阅读并遵守所有适用的约定文档。
-```
-
-If a same-directory `AGENTS.md` and `CONVENTIONS.md` conflict, make `CONVENTIONS.md` authoritative. Update `CONVENTIONS.md` when a durable rule needs to change.
-
-Use `assets/AGENTS.template.md` only as a shape guide. Keep the final file short.
-
-## Document Resolution and Precedence
-
-For a target file, discover every CONVENTIONS.md and AGENTS.md from the repository root to the target directory, then read them from outermost to innermost.
-
-- Parent CONVENTIONS.md files establish defaults for child scopes.
-- A child CONVENTIONS.md can add or override a parent rule only when it identifies the overridden topic in an explicit "Overrides" or "覆盖项" section.
-- A same-directory CONVENTIONS.md is authoritative over the same-directory AGENTS.md. AGENTS.md is a concise operational entrypoint and must not silently contradict its CONVENTIONS.md.
-- A child AGENTS.md may add local execution guardrails, but it must link to or name the parent rules it refines.
-- If documents conflict without an explicit local override, report the conflict and preserve it for user resolution. Do not invent a precedence rule.
-
-When creating module-level documents, include their scope, parent convention path, and explicit overrides. Do not repeat parent rules unless repetition prevents a high-risk mistake.
-
-## Root vs Module Strategy
-
-- Root `CONVENTIONS.md`: use for repo-wide workflow, package map, dependency policy, shared commands, generated artifacts, and cross-cutting style.
-- Module `CONVENTIONS.md`: use when a subfolder has its own role, public contract, or contribution rules.
-- Root `AGENTS.md`: use as the first agent entrypoint; it should route agents to relevant module docs.
-- Module `AGENTS.md`: use when mistakes in that folder are expensive and local rules must be visible before edits.
-
-Choose one layout from evidence:
-
-| Choice | Use when | Creates |
-| --- | --- | --- |
-| Root only | Small or single-purpose repos | root `CONVENTIONS.md` and root `AGENTS.md` |
-| Root plus modules | Monorepos, hybrid repos, layered systems, or multiple apps/packages | root docs plus targeted module docs |
-| Module only | The user targets one subfolder or wants local rules without repo-wide policy | scoped `CONVENTIONS.md` and `AGENTS.md` in that folder |
-
-In propose mode, mark one layout as recommended and present the alternatives. In apply mode, use the user's requested layout; if auto is clearly best, state the assumption in the discovery report before writing.
-
-For small repos, one root `CONVENTIONS.md` plus one root `AGENTS.md` is enough.
-
-## Output Style
-
-- Match the repository's existing language. If existing docs are Chinese, write Chinese.
-- Prefer concrete folder names, type names, commands, and config names from the repo.
-- Keep rules actionable: "put X in Y", "do not edit X by hand", "new A follows steps 1-5".
-- Use Markdown headings and bullets, not prose walls.
-- Use code blocks for folder trees and short examples.
-- For C#/.NET projects that already use XML comments, preserve Chinese XML comment requirements when present.
-
-## Common Mistakes
-
-| Mistake | Fix |
-| --- | --- |
-| Treating every repo as layered architecture | Identify the actual archetype first |
-| Writing generic best practices | Anchor each rule to a folder, command, framework, or risk in the repo |
-| Making `AGENTS.md` too long | Put durable detail in `CONVENTIONS.md`; keep `AGENTS.md` as the entrypoint |
-| Duplicating stale implementation details | Describe stable boundaries and extension points |
-| Ignoring existing style | Match existing language, tone, and section structure |
-
-## Verification
-
-Before finishing:
-
-- state the resolved request contract and the files changed or proposed
-- include the discovery report or a concise evidence matrix in the response
-- list generated or changed files
-- scan for leftover placeholders
-- confirm every referenced path exists or is intentionally illustrative
-- confirm each `AGENTS.md` points to the correct `CONVENTIONS.md`
-- confirm parent and child documents follow the declared inheritance and override rules
-- confirm the docs do not force an archetype contradicted by the repo
-- state that no build/tests were run when only documentation changed
+交付前必须说明最终请求契约、检查覆盖范围、实际或计划文件、验证结果、未决冲突，以及没有获得授权的验证或外部操作。只有`应用`模式可以报告文件已变更。
