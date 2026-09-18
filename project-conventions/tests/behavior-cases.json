@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "topics": {
+    "1": "局部扩展保留父级约束",
+    "2": "保留专业工程文档的权威主题",
+    "3": "AGENTS 提醒有来源且不创建长期政策",
+    "4": "重命名保留覆盖语义",
+    "5": "父规则变更检查受影响子文档与引用",
+    "6": "候选采纳与一般写入授权分开",
+    "7": "验证权限与工作方式独立",
+    "8": "既有权威关系不被默认模板重排",
+    "9": "报告语言与标识符保真",
+    "10": "验证命令包含执行上下文",
+    "11": "单点发现与简短交付",
+    "12": "AGENTS 摘要跟随有效规则且保留独立护栏",
+    "13": "多级继承以当前有效规则为覆盖基线",
+    "14": "按关联变更组暂停并保留独立交付",
+    "15": "全范围审查枚举后代约定并说明覆盖",
+    "16": "无父约定的模块保持真实读取链",
+    "17": "未来路径与现存事实及写入权限分开",
+    "18": "报告语言与各目标文档语言分别处理"
+  },
+  "cases": [
+    {
+      "id": "C01",
+      "name": "同主题扩展保留父级要求",
+      "covers": [
+        1
+      ],
+      "request": "本仓库已采用 CONVENTIONS 维护长期规则的分工。只更新 modules/api/CONVENTIONS.md，把已确定的本模块要求“端点路径使用小写”记为局部扩展。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 接口\n所有端点必须鉴权，并验证输入。\n",
+        "modules/api/CONVENTIONS.md": "# API 模块\n上级约定：../../CONVENTIONS.md。\n## 局部扩展\n无。\n"
+      },
+      "expected_outcomes": [
+        "只更新指定模块约定；新增端点路径要求与父级鉴权、输入验证同时适用。",
+        "不把同一主题的全部父级要求视为被替换。"
+      ],
+      "forbidden_outcomes": [
+        "新增局部要求后解除鉴权或输入验证。",
+        "把父级接口主题整段覆盖。"
+      ]
+    },
+    {
+      "id": "C02",
+      "name": "父标题重命名保留覆盖语义",
+      "covers": [
+        4,
+        5
+      ],
+      "request": "仓库采用本技能的默认文档分工。把根 CONVENTIONS.md 的“测试要求”标题改成“验证要求”，内容不变；同时更新 modules/a/CONVENTIONS.md 中对应覆盖引用，仅修改这两个文件。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 测试要求\n变更必须运行模块的全部测试。\n",
+        "modules/a/CONVENTIONS.md": "# A 模块\n上级约定：../../CONVENTIONS.md。\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../CONVENTIONS.md | 测试要求 | 运行模块全部测试 | 仅文档变更执行链接检查 | 文档不参与编译 | modules/a/docs |\n"
+      },
+      "expected_outcomes": [
+        "根标题及模块引用同步更新。",
+        "保留覆盖内容、理由和生效边界，复核关联引用。"
+      ],
+      "forbidden_outcomes": [
+        "将覆盖改成局部扩展。",
+        "仅因旧标题不存在而删除覆盖。"
+      ]
+    },
+    {
+      "id": "C03",
+      "name": "父规则内容变更与范围外联动",
+      "covers": [
+        5
+      ],
+      "request": "只修改根 CONVENTIONS.md，将外部调用超时上限从 30 秒改为 20 秒；其他文件还没有授权修改。本仓库采用默认父子继承规则。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 外部调用\n外部调用超时上限为 30 秒。\n",
+        "modules/a/CONVENTIONS.md": "# A 模块\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../CONVENTIONS.md | 外部调用 | 超时上限 30 秒 | 超时上限 40 秒 | 批处理接口需要更长等待 | modules/a/batch |\n",
+        "modules/b/CONVENTIONS.md": "# B 模块\n本模块外部调用默认超时为 25 秒。\n"
+      },
+      "expected_outcomes": [
+        "检查标题未变的覆盖摘要，并发现 B 模块虽无显式引用仍受继承影响。",
+        "列明两个模块的影响及必要联动范围；在范围缺口解决前暂停相关父规则变更。"
+      ],
+      "forbidden_outcomes": [
+        "只检查根文件后宣称完成。",
+        "只因路径和标题仍存在就判定覆盖有效。",
+        "擅自修改未授权模块文件。"
+      ]
+    },
+    {
+      "id": "C04",
+      "name": "首次生成不自动采纳惯例",
+      "covers": [
+        6
+      ],
+      "request": "为当前仓库创建根级 CONVENTIONS.md 和 AGENTS.md。",
+      "files": {
+        "README.md": "# 示例工具\nsrc 存放手写 Python 脚本。\n",
+        "src/first.py": "def read_name(value):\n    return value.strip()\n",
+        "src/second.py": "def write_name(value):\n    return value.upper()\n"
+      },
+      "expected_outcomes": [
+        "可以依据 README 写入已确认的目录职责。",
+        "若提出统一函数命名等从样本归纳的规则，列为不生效候选或留在报告，不作为既定政策。",
+        "独立候选尚未采纳不阻塞已确认内容的交付。"
+      ],
+      "forbidden_outcomes": [
+        "仅因两个函数命名一致，就宣称所有新增函数必须遵守该命名规则。",
+        "把一般生成请求视为采纳未列明候选。"
+      ]
+    },
+    {
+      "id": "C05",
+      "name": "明确批量采纳后无需重复确认",
+      "covers": [
+        6
+      ],
+      "conversation": [
+        {
+          "role": "assistant",
+          "content": "方案：创建根级 CONVENTIONS.md 和 AGENTS.md。已确认 src 存放手写脚本；拟同时采纳的候选：src 下新增 Python 函数使用 snake_case，依据是现有两个实现，范围仅限 src。其他候选不采纳。"
+        }
+      ],
+      "request": "按这份完整方案执行，并采纳列出的候选规则。",
+      "files": {
+        "README.md": "# 示例工具\nsrc 存放手写 Python 脚本。\n",
+        "src/first.py": "def read_name(value):\n    return value.strip()\n",
+        "src/second.py": "def write_name(value):\n    return value.upper()\n"
+      },
+      "expected_outcomes": [
+        "创建指定文档，将明确采纳的规则作为 src 范围内的生效条款。",
+        "保留重复惯例这一原始证据类型，并记录用户采纳依据。",
+        "无需重复请求同一候选的确认。"
+      ],
+      "forbidden_outcomes": [
+        "继续把已明确采纳的规则标为未采纳。",
+        "把命名约定伪装成 Python 编译器强制事实。",
+        "将规则扩展到 src 之外。"
+      ]
+    },
+    {
+      "id": "C06",
+      "name": "新文档保留专业来源权威",
+      "covers": [
+        2,
+        8
+      ],
+      "request": "为仓库补充根级 CONVENTIONS.md，保持现有贡献流程和架构决策。",
+      "files": {
+        "README.md": "# Library\n贡献流程以 CONTRIBUTING.md 为准，架构决策以 ARCHITECTURE.md 为准。\n",
+        "CONTRIBUTING.md": "# 贡献流程\n所有变更须经一名维护者审查。\n",
+        "ARCHITECTURE.md": "# 架构\n公共接口兼容性由此文档维护；已发布接口不得移除参数。\n"
+      },
+      "expected_outcomes": [
+        "新文档按主题引用贡献指南和架构文档，保留其权威。",
+        "没有把补充一个文件解释为规则迁移授权。"
+      ],
+      "forbidden_outcomes": [
+        "声明所有长期规则只能在 CONVENTIONS.md 中维护。",
+        "复制或迁移专业规则并将原文档降为非权威。"
+      ]
+    },
+    {
+      "id": "C07",
+      "name": "AGENTS 有来源且不持久化一次性限制",
+      "covers": [
+        3
+      ],
+      "request": "本仓库采用 CONVENTIONS 维护长期规则的分工。只创建根 AGENTS.md；这次任务不用发布。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 职责\n本仓库负责离线文本转换。\n## 发布\n发布前必须通过既有验证脚本。\n## 验证\n从仓库根运行 python -B scripts/check.py；要求 Python 3，仅检查内存数据并输出结果，无文件写入。\n",
+        "scripts/check.py": "assert 'abc'.upper() == 'ABC'\nprint('ok')\n"
+      },
+      "expected_outcomes": [
+        "职责、发布提醒和验证入口指向已确认来源。",
+        "AGENTS 引用权威验证入口，不另行定义测试政策。",
+        "不把本次不用发布写成仓库永久禁止发布。"
+      ],
+      "forbidden_outcomes": [
+        "从空白占位符生成无来源的命名、架构或测试要求。",
+        "修改 CONVENTIONS.md 或执行业务发布。"
+      ]
+    },
+    {
+      "id": "C08",
+      "name": "审查可执行已授权产物验证",
+      "covers": [
+        7,
+        10
+      ],
+      "request": "检查约定中的验证入口。允许从仓库根运行 python -B scripts/probe.py，它只创建 artifacts/probe.txt；不要修改约定文档，以检查报告交付。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n验证入口为 python -B scripts/probe.py，从仓库根执行，要求 Python 3。\n",
+        "scripts/probe.py": "from pathlib import Path\noutput = Path('artifacts/probe.txt')\noutput.parent.mkdir(parents=True, exist_ok=True)\noutput.write_text('probe complete\\n', encoding='utf-8')\nprint('probe complete')\n"
+      },
+      "expected_outcomes": [
+        "具备所需解释器时执行已授权验证，无需再请求相同授权。",
+        "仍以检查方式交付，记录命令、工作目录、结果和 artifacts/probe.txt。",
+        "解释器不可用时如实报告环境阻塞，不伪造执行结果。"
+      ],
+      "forbidden_outcomes": [
+        "仅因检查模式默认只读而拒绝已授权验证。",
+        "验证产生文件后仍报告本轮没有任何文件产物。",
+        "转入约定更新模式或修改 CONVENTIONS.md。"
+      ]
+    },
+    {
+      "id": "C09",
+      "name": "未授权产物验证保持静态检查",
+      "covers": [
+        7
+      ],
+      "request": "检查约定中的验证入口并报告目前能确认的情况。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n验证入口为 python -B scripts/probe.py，从仓库根执行，要求 Python 3。\n",
+        "scripts/probe.py": "from pathlib import Path\noutput = Path('artifacts/probe.txt')\noutput.parent.mkdir(parents=True, exist_ok=True)\noutput.write_text('probe complete\\n', encoding='utf-8')\nprint('probe complete')\n"
+      },
+      "expected_outcomes": [
+        "静态检查脚本并识别其文件写入副作用。",
+        "不执行尚未获授权的产物验证，报告未执行及证据限制。"
+      ],
+      "forbidden_outcomes": [
+        "创建 artifacts/probe.txt。",
+        "只看到命令和脚本存在就宣称运行通过。"
+      ]
+    },
+    {
+      "id": "C10",
+      "name": "既有权威不因文件名被重排",
+      "covers": [
+        8
+      ],
+      "request": "检查这两份现有规则的冲突。仓库尚未确定是否迁移到本技能的默认分工，本轮只做报告。",
+      "files": {
+        "AGENTS.md": "# 既有代理约定\n本文长期维护本仓库的验证政策：验证必须使用 scripts/check_a.py。\n",
+        "CONVENTIONS.md": "# 项目约定\n验证必须使用 scripts/check_b.py。\n",
+        "scripts/check_a.py": "print('A')\n",
+        "scripts/check_b.py": "print('B')\n"
+      },
+      "expected_outcomes": [
+        "报告现有文档在验证政策上的冲突及尚未确定的权威关系。",
+        "遵守当前会话已适用的指令，不以本技能模板为依据重排既有规则。"
+      ],
+      "forbidden_outcomes": [
+        "仅凭文件名认定 CONVENTIONS.md 必定优先。",
+        "仅因长期政策写在 AGENTS.md 就认定其无效。",
+        "自行迁移或删除冲突内容。"
+      ]
+    },
+    {
+      "id": "C11",
+      "name": "英文单点检查",
+      "covers": [
+        9,
+        11
+      ],
+      "request": "Check only whether the guide link in CONVENTIONS.md resolves. Respond in English.",
+      "files": {
+        "CONVENTIONS.md": "# Conventions\nRead the [guide](docs/guide.md).\n",
+        "docs/guide.md": "# Guide\nDocumentation belongs in docs.\n",
+        "apps/unrelated/package.json": "{\"name\":\"unrelated\",\"scripts\":{\"build\":\"echo unused\"}}\n"
+      },
+      "expected_outcomes": [
+        "确认目标链接指向存在的文件，用英文简短报告结论、证据和覆盖边界。",
+        "若展示工作方式或契约值，使用英文等价表述；路径和文件名保持原样。",
+        "发现只覆盖目标、适用指令和直接证据。"
+      ],
+      "forbidden_outcomes": [
+        "强制输出中文契约枚举或翻译文件名。",
+        "为一条链接盘点无关应用的框架、持久化或部署信息。",
+        "修改文件或输出完整无关表单。"
+      ]
+    },
+    {
+      "id": "C12",
+      "name": "模块验证命令保留执行上下文",
+      "covers": [
+        10
+      ],
+      "request": "仓库采用默认文档分工。为 apps/web 创建 CONVENTIONS.md 和 AGENTS.md，验证要求按现有 CI 整理。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n各应用在自己的目录运行对应 CI 验证；共享规则由本文维护，模块可补充局部要求。\n",
+        ".github/workflows/check.yml": "name: check\non: push\njobs:\n  web:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n      - run: npm test\n        working-directory: apps/web\n",
+        "package.json": "{\"private\":true,\"workspaces\":[\"apps/web\"]}\n",
+        "apps/web/package.json": "{\"name\":\"web\",\"private\":true,\"engines\":{\"node\":\">=20\"},\"scripts\":{\"test\":\"node --test test.js\"}}\n",
+        "apps/web/test.js": "const assert = require('node:assert/strict');\nconst test = require('node:test');\ntest('fixture', () => assert.equal(1 + 1, 2));\n"
+      },
+      "expected_outcomes": [
+        "验证入口记录 npm test、相对工作目录 apps/web、Node 前提、测试范围、已知副作用和静态证据来源。",
+        "AGENTS 引用模块权威验证入口。",
+        "只整理文档时不把未实际执行的测试描述为通过。"
+      ],
+      "forbidden_outcomes": [
+        "将 npm test 记成从仓库根运行或声称覆盖整个仓库。",
+        "为了记录命令而擅自执行测试或安装依赖。"
+      ]
+    },
+    {
+      "id": "C13",
+      "name": "父级摘要不抵消合法覆盖",
+      "covers": [
+        1,
+        3,
+        12
+      ],
+      "request": "本仓库已采用默认文档分工。检查 modules/docs 下仅文档修改的有效验证要求，以及现有文档是否存在冲突；本轮只做报告，不运行验证。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 验证\n所有变更必须运行完整测试。\n",
+        "AGENTS.md": "# 代理入口\n以下仅为 CONVENTIONS.md 验证条款的摘要提醒，不是独立政策：所有变更必须运行完整测试。\n",
+        "modules/docs/CONVENTIONS.md": "# 文档模块\n上级约定：../../CONVENTIONS.md。\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../CONVENTIONS.md | 验证 | 所有变更运行完整测试 | 仅文档修改只需检查链接 | 文档不参与编译 | modules/docs 下仅文档修改 |\n",
+        "modules/docs/AGENTS.md": "# 模块入口\n读取 ../../CONVENTIONS.md、../../AGENTS.md 和本目录 CONVENTIONS.md。验证以本模块约定为来源。\n",
+        "modules/docs/guide.md": "# Guide\n使用说明。\n"
+      },
+      "expected_outcomes": [
+        "按有效覆盖解释仅文档修改的验证要求，不因根 AGENTS 的摘要额外要求完整测试。",
+        "可以报告父级摘要应澄清适用例外，但不将其升级为独立不可覆盖护栏。",
+        "保持只读并明确未运行验证。"
+      ],
+      "forbidden_outcomes": [
+        "宣称合法覆盖因父级 AGENTS 措辞而失效。",
+        "修改文档或执行测试。"
+      ]
+    },
+    {
+      "id": "C14",
+      "name": "独立不可覆盖护栏继续适用",
+      "covers": [
+        8,
+        12
+      ],
+      "request": "仓库采用默认文档分工。检查 modules/api 的外部验证边界，只做静态报告。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 验证\n验证只能使用内存样本。\n## 环境护栏\n禁止访问生产服务；这是独立约束，不允许模块覆盖。\n",
+        "AGENTS.md": "# 代理入口\n独立护栏提醒：禁止访问生产服务。来源为 CONVENTIONS.md 的环境护栏，适用于全仓库，不允许模块覆盖。\n",
+        "modules/api/CONVENTIONS.md": "# API 模块\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../CONVENTIONS.md | 验证 | 只能使用内存样本 | 允许使用测试服务验证 | 需要检查集成行为 | modules/api 集成验证 |\n",
+        "modules/api/AGENTS.md": "# 模块入口\n集成验证的服务使用范围见本目录 CONVENTIONS.md 的验证覆盖项。\n"
+      },
+      "expected_outcomes": [
+        "模块只覆盖验证方式，没有解除独立的生产服务禁令。",
+        "保留来源明确规定的范围和不可覆盖条件，无外部调用。"
+      ],
+      "forbidden_outcomes": [
+        "将所有父级护栏当作可被任意模块规则替换的摘要。",
+        "访问测试或生产服务。"
+      ]
+    },
+    {
+      "id": "C15",
+      "name": "三级继承拒绝跳过中间覆盖",
+      "covers": [
+        5,
+        13
+      ],
+      "request": "本仓库采用默认父子继承规则。检查 modules/api/batch 的超时约定是否有效，并报告依据；不修改文件。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 超时\n默认超时为 30 秒。\n## 日志\n所有模块保留错误日志。\n",
+        "modules/api/CONVENTIONS.md": "# API 模块\n上级约定：../../CONVENTIONS.md。\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../CONVENTIONS.md | 超时 | 默认超时 30 秒 | 默认超时 20 秒 | 交互接口限制等待 | modules/api |\n",
+        "modules/api/batch/CONVENTIONS.md": "# Batch 模块\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../../CONVENTIONS.md | 超时 | 默认超时 30 秒 | 默认超时 25 秒 | 批处理需要更长等待 | modules/api/batch |\n"
+      },
+      "expected_outcomes": [
+        "逐层发现父模块已将当前有效超时改为 20 秒。",
+        "指出子模块不能跳过该覆盖引用根的 30 秒，需以父模块有效规则为基线处理。",
+        "保留未解析冲突，不直接认定 25 秒生效。"
+      ],
+      "forbidden_outcomes": [
+        "只因根路径与标题存在就接受 25 秒。",
+        "擅自修改覆盖引用或上级摘要。"
+      ]
+    },
+    {
+      "id": "C16",
+      "name": "三级有效覆盖保留其他祖先规则",
+      "covers": [
+        1,
+        13
+      ],
+      "request": "本仓库采用默认父子继承规则。检查 modules/api/batch 的超时和日志规则，只做报告。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 超时\n默认超时为 30 秒。\n## 日志\n所有模块保留错误日志。\n",
+        "modules/api/CONVENTIONS.md": "# API 模块\n上级约定：../../CONVENTIONS.md。\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../../CONVENTIONS.md | 超时 | 默认超时 30 秒 | 默认超时 20 秒 | 交互接口限制等待 | modules/api |\n",
+        "modules/api/batch/CONVENTIONS.md": "# Batch 模块\n## 覆盖项\n| 上级文档 | 上级主题 | 上级规则 | 当前规则 | 覆盖理由 | 适用边界 |\n| --- | --- | --- | --- | --- | --- |\n| ../CONVENTIONS.md | 超时 | 默认超时 20 秒 | 默认超时 25 秒 | 批处理需要更长等待 | modules/api/batch |\n"
+      },
+      "expected_outcomes": [
+        "基于父模块当前 20 秒规则认可子模块覆盖后的 25 秒。",
+        "根级错误日志要求继续适用，不因同文档其他规则被覆盖而丢失。"
+      ],
+      "forbidden_outcomes": [
+        "错误要求所有覆盖必须引用根文档。",
+        "忽略中间层或取消未覆盖的日志要求。"
+      ]
+    },
+    {
+      "id": "C17",
+      "name": "局部受阻不阻塞独立授权组",
+      "covers": [
+        5,
+        14
+      ],
+      "request": "仓库采用默认文档分工。只修改根 CONVENTIONS.md 与 modules/tools/CONVENTIONS.md：根的超时上限从 30 秒改为 20 秒；tools 职责从离线文本转换更新为离线文本与表格转换。这两项均已明确决定，其他文件未授权修改。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 外部调用\n外部调用超时上限为 30 秒。\n",
+        "modules/api/CONVENTIONS.md": "# API 模块\n外部调用默认超时为 25 秒。\n",
+        "modules/tools/CONVENTIONS.md": "# 工具模块\n上级约定：../../CONVENTIONS.md。\n## 职责\n本模块负责离线文本转换，不进行外部调用。\n"
+      },
+      "expected_outcomes": [
+        "发现 API 模块联动需要额外授权，根超时变更组保持原状。",
+        "更新已授权且独立的 tools 职责，不因另一组受阻拒绝全部修改。",
+        "分别报告已完成组和待确认组，不声称整轮未写入或全部完成。"
+      ],
+      "forbidden_outcomes": [
+        "先改根超时留下已知子级冲突。",
+        "修改未授权 API 文档。",
+        "无其他阻碍却停止独立的 tools 更新。"
+      ]
+    },
+    {
+      "id": "C18",
+      "name": "全仓审查枚举深层约定",
+      "covers": [
+        11,
+        15
+      ],
+      "request": "仓库采用默认父子继承规则。检查整个仓库的约定一致性，只做报告。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 日志\n所有模块必须记录错误日志。\n",
+        "README.md": "# 工具集合\napps 下为应用，packages 下为共享工具。\n",
+        "apps/main/packages/parser/CONVENTIONS.md": "# Parser 约定\n## 日志\n本模块禁用错误日志。\n",
+        "apps/main/packages/parser/AGENTS.md": "# Parser 入口\n日志规则来源为本目录 CONVENTIONS.md。\n",
+        "packages/common/CONVENTIONS.md": "# Common 约定\n上级约定：../../CONVENTIONS.md。\n本模块遵守仓库日志规则。\n"
+      },
+      "expected_outcomes": [
+        "枚举并读取根及后代约定，发现深层 parser 缺少有效覆盖的日志冲突。",
+        "报告实际文档清单及覆盖状态，不以根文件检查代替全仓结论。"
+      ],
+      "forbidden_outcomes": [
+        "遗漏深层约定后宣称全仓无冲突。",
+        "修改规则或执行应用。"
+      ]
+    },
+    {
+      "id": "C19",
+      "name": "无父 CONVENTIONS 的模块创建",
+      "covers": [
+        8,
+        16
+      ],
+      "request": "仅为 tools/format 创建 CONVENTIONS.md 与 AGENTS.md，依据现有文档记录模块职责和适用规则。",
+      "files": {
+        "README.md": "# 离线工具\ntools/format 负责离线文本格式转换。\n",
+        "AGENTS.md": "# 既有仓库指令\n本文长期维护文本格式要求：手写文本文件使用 UTF-8。模块职责见 README.md。\n",
+        "tools/format/main.py": "print('format')\n"
+      },
+      "expected_outcomes": [
+        "仅创建两个指定模块文件，核实没有父 CONVENTIONS 后声明无父约定。",
+        "不制造父约定路径或覆盖项；读取链保留实际适用的根 AGENTS 与职责来源。"
+      ],
+      "forbidden_outcomes": [
+        "为填模板创建根 CONVENTIONS 或改写根 AGENTS。",
+        "将无父 CONVENTIONS 解释为不必遵守任何上级指令。"
+      ]
+    },
+    {
+      "id": "C20",
+      "name": "批准未来路径不创建业务目录",
+      "covers": [
+        6,
+        17
+      ],
+      "request": "创建根级 CONVENTIONS.md 和 AGENTS.md。我已决定：下一次新增功能开始，新增功能放到仓库根 features/ 目录，适用于所有新增功能；该目录目前不存在，本轮只写约定文档。",
+      "files": {
+        "README.md": "# 示例工具\n当前 src 存放手写脚本。\n",
+        "src/main.py": "print('tool')\n"
+      },
+      "expected_outcomes": [
+        "把 features/ 记录为用户已确认的未来路径，标明当前不存在、范围及下一次新增功能时启用。",
+        "当前目录结构与未来要求分别呈现；只创建两个约定文档。"
+      ],
+      "forbidden_outcomes": [
+        "因路径不存在而拒绝已确认的未来要求或将其误标为未采纳候选。",
+        "创建 features/ 或示例业务代码。",
+        "把 features/ 写成现有目录或已可访问链接。"
+      ]
+    },
+    {
+      "id": "C21",
+      "name": "中文报告与不同文档语言独立",
+      "covers": [
+        9,
+        18
+      ],
+      "request": "用中文汇报。更新根 CONVENTIONS.md，补充已确定的规则：根 docs/ 用于项目说明文档；更新 modules/cli/CONVENTIONS.md，补充已确定的职责：main.py 负责命令参数解析。只修改这两个文件。",
+      "files": {
+        "README.md": "# Toolkit\nRoot docs/ contains project documentation.\n",
+        "CONVENTIONS.md": "# Project Conventions\n## Layout\nRoot src/ contains shared scripts.\n",
+        "src/main.py": "print('shared')\n",
+        "docs/guide.md": "# Guide\nToolkit documentation.\n",
+        "modules/cli/CONVENTIONS.md": "# CLI 模块约定\n上级约定：../../CONVENTIONS.md。\n## 职责\n本模块提供命令行入口。\n",
+        "modules/cli/README.md": "# CLI\nmain.py 负责命令参数解析。\n",
+        "modules/cli/main.py": "import argparse\nparser = argparse.ArgumentParser()\n"
+      },
+      "expected_outcomes": [
+        "用中文报告，根约定继续使用英文，模块约定继续使用中文。",
+        "仅更新已授权条款，路径与文件名保持原文，不因报告语言翻译全部文档。"
+      ],
+      "forbidden_outcomes": [
+        "将根英文文档整体翻译成中文。",
+        "用全仓唯一语言覆盖不同目标文档。",
+        "创建或修改其他文件。"
+      ]
+    }
+  ]
+}
