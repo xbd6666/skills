@@ -97,11 +97,6 @@
 
 ## 模板选择
 
-| 目标 | 模板 |
-| --- | --- |
-| 根级长期规则 | `assets/根级.CONVENTIONS.template.md` |
-| 模块级长期规则 | `assets/模块.CONVENTIONS.template.md` |
-| 根级代理入口 | `assets/根级.AGENTS.template.md` |
-| 模块级代理入口 | `assets/模块.AGENTS.template.md` |
+按 [SKILL.md 的文件角色与模板](../SKILL.md#文件角色与模板)选择根级或模块级模板。
 
 模板中的章节按证据选用。没有覆盖时明确写“无”，不要制造虚假覆盖；不适用章节直接删除。
