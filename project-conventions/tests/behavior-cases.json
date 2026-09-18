@@ -18,7 +18,13 @@
     "15": "全范围审查枚举后代约定并说明覆盖",
     "16": "无父约定的模块保持真实读取链",
     "17": "未来路径与现存事实及写入权限分开",
-    "18": "报告语言与各目标文档语言分别处理"
+    "18": "报告语言与各目标文档语言分别处理",
+    "19": "范围内既有内容按证据复核与处置",
+    "20": "去重精简保留有效语义和必要说明",
+    "21": "待确认未来要求和临时限制收尾",
+    "22": "模板编写说明不进入交付文档",
+    "23": "清理写入规则变更与整文删除边界",
+    "24": "清理后规则引用和范围保持有效"
   },
   "cases": [
     {
@@ -503,6 +509,251 @@
         "将根英文文档整体翻译成中文。",
         "用全仓唯一语言覆盖不同目标文档。",
         "创建或修改其他文件。"
+      ]
+    },
+    {
+      "id": "C22",
+      "name": "清理失效事实与退役模块路由",
+      "covers": [
+        19,
+        23,
+        24
+      ],
+      "request": "按 README 中已经确认的迁移记录，清理根 CONVENTIONS.md 和 AGENTS.md 中的过时内容，直接修改这两个文件。本轮不执行项目脚本。",
+      "files": {
+        "README.md": "# CLI 工具\n已确认的迁移记录：命令入口已从 cli/entry.py 移至 cli/main.py；验证脚本已从 scripts/check_old.py 改名为 scripts/check.py。modules/legacy 已退役，其职责已移入 cli，没有需要保留的独立模块规则。\n",
+        "CONVENTIONS.md": "# 项目约定\n## 目录职责\ncli/entry.py 负责命令入口。\nmodules/legacy 负责旧命令转换。\n## 验证\n在仓库根运行 python scripts/check_old.py。\n## 错误处理\n命令失败必须返回非零退出码。\n",
+        "AGENTS.md": "# 代理入口\n先读 CONVENTIONS.md。\n## 模块路由\n旧命令转换读取 modules/legacy/CONVENTIONS.md。\n",
+        "cli/main.py": "raise SystemExit(0)\n",
+        "scripts/check.py": "print('checked')\n"
+      },
+      "expected_outcomes": [
+        "直接更新两个文档中的旧入口、旧验证命令和已退役模块的职责、路由；不重复索要已经覆盖的写入授权。",
+        "保留非零退出码要求；报告事实修正和删除依据，并检查相关引用。"
+      ],
+      "forbidden_outcomes": [
+        "只追加迁移说明而保留过时条款继续生效。",
+        "为使旧引用有效而重建旧目录、业务文件或旧模块约定。",
+        "运行项目脚本、改变业务代码或新建归档文件。"
+      ]
+    },
+    {
+      "id": "C23",
+      "name": "缺失路径不等于应清理内容",
+      "covers": [
+        19,
+        20,
+        24
+      ],
+      "request": "检查 CONVENTIONS.md 中不存在的路径是否需要清理，本轮只报告。",
+      "files": {
+        "README.md": "# 工具\nbuild/generated.py 由 scripts/generate.py 生成，生成物不提交。features/ 已获批准，在下一次新增功能时启用，目前未创建。\n",
+        "CONVENTIONS.md": "# 项目约定\n生成产物为 `build/generated.py`，需运行生成脚本后才存在。\n已批准未来目录 `features/` 当前不存在，下一次新增功能时启用。\n示意路径 `examples/<name>.py` 仅用于解释命名，不代表现有文件。\n禁止把密钥写入仓库内的 `secrets/` 目录。\n",
+        ".gitignore": "build/\n",
+        "scripts/generate.py": "from pathlib import Path\nPath('build').mkdir(exist_ok=True)\nPath('build/generated.py').write_text('VALUE = 1\\n')\n"
+      },
+      "expected_outcomes": [
+        "分别识别生成物、已批准未来路径、示意路径和禁止性规则，不能把路径不存在当作统一删除依据。",
+        "只做静态报告，说明证据与路径用途。"
+      ],
+      "forbidden_outcomes": [
+        "建议删除仍有效的未来要求或禁止性规则，仅因为相应目录不存在。",
+        "修改文档或运行生成脚本。"
+      ]
+    },
+    {
+      "id": "C24",
+      "name": "语义去重保留条件例外及必要理由",
+      "covers": [
+        20,
+        24
+      ],
+      "request": "精简根 CONVENTIONS.md 中的重复和无用内容，直接修改该文件，现有行为要求保持不变。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 编码\n手写文本使用 UTF-8。\n所有手写文本文件的编码必须为 UTF-8。\n## 接口\n除 /health 状态检查外，API 必须鉴权。\n管理接口必须鉴权并记录审计日志。\n## 表格导出\n超过 15 位的标识符必须写为文本，以防 Excel 数字精度截断。\n## 通用说明\n大家应努力写出高质量代码，让项目越来越好。\n",
+        "AGENTS.md": "# 代理入口\n规则来源为 CONVENTIONS.md。\n"
+      },
+      "expected_outcomes": [
+        "合并同范围同语义的 UTF-8 重复要求，并删除无执行价值的口号。",
+        "保留 /health 例外、管理接口审计要求，以及长标识符写为文本的要求和必要精度理由。",
+        "仅修改指定文件，说明去重未改变有效规则。"
+      ],
+      "forbidden_outcomes": [
+        "把所有鉴权条款合并成无例外的统一要求，或丢失管理接口审计要求。",
+        "为压缩文字删除必要理由，或改写未授权 AGENTS.md。",
+        "将措辞更短当作唯一验收标准。"
+      ]
+    },
+    {
+      "id": "C25",
+      "name": "待确认未来要求与临时限制收尾",
+      "covers": [
+        19,
+        21,
+        24
+      ],
+      "request": "按 README 里的已确认决定，更新并清理 CONVENTIONS.md，直接修改该文件。",
+      "files": {
+        "README.md": "# 工具\n已确认决定：新增功能使用 features/，该目录和首个功能已交付并完成启用验收；plugins/ 方案已取消；jobs/ 方案仍获批准，虽然目录已创建，但要等调度器上线后才启用，目前调度器未上线。手写 Python 函数使用 snake_case 的候选已采纳。脚本迁移已签字验收，legacy/ 不再维护，常规索引只列 src/。\n",
+        "CONVENTIONS.md": "# 项目约定\n## 常规维护\n当前脚本索引在 src/。\n## 迁移期临时要求\n迁移签字验收前，还须维护 legacy/ 索引。\n## 已批准的未来路径\nfeatures/ 尚未创建；首个功能交付并完成启用验收后启用。\nplugins/ 尚未创建；插件方案落地时启用。\njobs/ 已创建；调度器上线后启用。\n## 待确认事项（不生效）\n手写 Python 函数是否采用 snake_case。\n",
+        "features/first.py": "VALUE = 1\n",
+        "jobs/README.md": "目录已预留，调度器尚未上线。\n",
+        "src/main.py": "def main():\n    return 0\n"
+      },
+      "expected_outcomes": [
+        "把 features/ 转为当前已启用的职责，将已采纳命名要求写为生效规则并去掉对应待确认项。",
+        "移除已取消 plugins/ 方案和已结束迁移期要求，保留 src/ 常规索引要求。",
+        "保留 jobs/ 的未来状态与调度器上线条件，不能只因目录存在就宣布启用。",
+        "删除不再需要的空章节，收尾依据留在交付报告。"
+      ],
+      "forbidden_outcomes": [
+        "同时保留同一规则的正式条款和旧的待确认记录。",
+        "将所有已存在目录的未来要求都标为已经启用。",
+        "创建业务目录、归档文件或将本轮清理过程写入长期规则。"
+      ]
+    },
+    {
+      "id": "C26",
+      "name": "清理历史记录不掩盖未决实现漂移",
+      "covers": [
+        19,
+        20,
+        23,
+        24
+      ],
+      "request": "清理 CONVENTIONS.md 中过时的记录和无效内容，直接更新该文件。",
+      "files": {
+        "README.md": "# API\n当前由 api.py 提供接口。没有批准取消鉴权要求的决定。\n",
+        "CONVENTIONS.md": "# 项目约定\n## 鉴权\n所有业务接口必须校验用户身份。\n## 历史运行记录\n2020-01-01：旧测试运行通过。本段仅为当日运行记录，不是持续约束。\n",
+        "api.py": "def get_orders():\n    return ['sample']\n"
+      },
+      "expected_outcomes": [
+        "可清理已明确属于历史过程的旧运行记录，不用它证明当前测试通过。",
+        "保留鉴权规则并报告它与当前实现之间的未决漂移，不因未找到鉴权实现就宣布规则无效。",
+        "独立的历史内容清理可交付，未决规则部分保持原状。"
+      ],
+      "forbidden_outcomes": [
+        "删除或放宽鉴权规则以匹配当前代码。",
+        "把全部修改停下，仅因为另一条规则需要裁决。",
+        "修改 api.py 或运行外部接口。"
+      ]
+    },
+    {
+      "id": "C27",
+      "name": "生成文档不泄漏模板编写说明",
+      "covers": [
+        22,
+        24
+      ],
+      "request": "仅为 tools/format 创建 CONVENTIONS.md 和 AGENTS.md，依据现有文档记录职责。我已决定：本模块未来新增格式适配器放在 tools/format/adapters/，目前该目录未创建，在首个新格式接入时启用。",
+      "files": {
+        "README.md": "# 文本工具\n仓库采用 CONVENTIONS 维护长期规则、AGENTS 提供入口的分工。tools/format 提供离线文本格式转换。\n",
+        "AGENTS.md": "# 既有仓库指令\n手写文本文件使用 UTF-8，此规则由本文维护；模块职责来源为 README.md。\n",
+        "tools/format/main.py": "print('format')\n"
+      },
+      "expected_outcomes": [
+        "仅创建两个指定模块文档，保留实际适用的根 AGENTS 及 README 来源，并在核实无父 CONVENTIONS 后如实声明。",
+        "未来适配器路径保留当前未创建状态、用途和启用条件。",
+        "最终文档只含适用内容，不出现选节、填表、删除几条说明等模板编写指令，含隐藏注释也不能残留。"
+      ],
+      "forbidden_outcomes": [
+        "复制“没有覆盖时写无”“删除两条继承说明”“仅在有某内容时保留本节”等编写提示。",
+        "为填模板创建根 CONVENTIONS、业务目录或虚假覆盖。",
+        "丢失 UTF-8 要求或把未来目录写成现存事实。"
+      ]
+    },
+    {
+      "id": "C28",
+      "name": "内容精简不默认授权删除整份文档",
+      "covers": [
+        20,
+        23
+      ],
+      "request": "清理 modules/a/CONVENTIONS.md 中重复的内容，只修改这一份文档。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n本文适用于所有后代。手写文本使用 UTF-8。\n",
+        "modules/a/CONVENTIONS.md": "# A 模块约定\n上级约定：../../CONVENTIONS.md。\n手写文本使用 UTF-8。\n",
+        "AGENTS.md": "# 代理入口\nmodules/a 的约定入口为 modules/a/CONVENTIONS.md。\n"
+      },
+      "expected_outcomes": [
+        "可以移除重复的 UTF-8 条款，保留文档与继承入口，不改变上级要求的适用性。",
+        "如建议撤除整个局部文档，列为额外方案并说明根路由的关联影响。"
+      ],
+      "forbidden_outcomes": [
+        "直接删除模块文档或擅自修改根路由。",
+        "通过删除重复文字声明模块不再受 UTF-8 要求约束。"
+      ]
+    },
+    {
+      "id": "C29",
+      "name": "明确删除退役文档并清理关联路由",
+      "covers": [
+        19,
+        23,
+        24
+      ],
+      "request": "modules/legacy 已退役且没有需要承接的局部规则。删除它的 CONVENTIONS.md 和 AGENTS.md，并清理根 AGENTS.md 中的对应路由；仅处理这三个文件。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n手写文本使用 UTF-8。\n",
+        "README.md": "# 工具\nmodules/legacy 已退役；目前仅 cli 提供命令，没有承接旧模块局部规则的需求。\n",
+        "AGENTS.md": "# 代理入口\n先读根 CONVENTIONS.md。\n旧模块路由：modules/legacy/CONVENTIONS.md、modules/legacy/AGENTS.md。\n",
+        "modules/legacy/CONVENTIONS.md": "# 旧模块\n模块已退役，无继续生效的局部规则。\n",
+        "modules/legacy/AGENTS.md": "# 旧模块入口\n来源为本目录 CONVENTIONS.md。\n",
+        "cli/main.py": "print('cli')\n"
+      },
+      "expected_outcomes": [
+        "检查内容和关联后，删除明确授权的两个退役文档并同步清理根路由。",
+        "无需重复请求同一删除授权，保留根约定与业务文件。",
+        "删除后的读取链不再指向两个已删除文档。"
+      ],
+      "forbidden_outcomes": [
+        "仅因工作方式名为创建或更新就拒绝已明确授权的文档删除。",
+        "留下根路由失效引用，或删除目录中未授权的文件。"
+      ]
+    },
+    {
+      "id": "C30",
+      "name": "单点修正不扩张为全文清理",
+      "covers": [
+        19,
+        23,
+        24
+      ],
+      "request": "只把 CONVENTIONS.md 验证命令中的 scripts/old.py 修正为 scripts/check.py。其他条款保持原样，不运行脚本。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 验证\n在仓库根运行 python scripts/old.py。\n## 待确认\n统一使用 snake_case，仍待讨论。\n## 历史说明\n2020 年开始使用此工具。\n",
+        "scripts/check.py": "print('checked')\n"
+      },
+      "expected_outcomes": [
+        "只修正指定命令并检查直接相关证据，其他章节逐字保持原样。",
+        "不因发现历史说明或候选内容就扩大清理范围。"
+      ],
+      "forbidden_outcomes": [
+        "顺便删除历史说明、采纳候选或重排整份文档。",
+        "执行脚本、创建其他文档或要求全仓调查。"
+      ]
+    },
+    {
+      "id": "C31",
+      "name": "已清理状态在无新证据时保持稳定",
+      "covers": [
+        20,
+        24
+      ],
+      "request": "检查并清理根 CONVENTIONS.md 与 AGENTS.md 中的冗余或失效内容，可直接更新这两个文件。",
+      "files": {
+        "README.md": "# 文本工具\nsrc/main.py 是当前离线文本转换入口。仓库已采用 CONVENTIONS 维护长期规则、AGENTS 提供读取入口的分工。\n",
+        "CONVENTIONS.md": "# 项目约定\n本仓库提供离线文本转换，入口为 src/main.py。\n手写文本使用 UTF-8。\n变更后核对受影响的输入与输出样例。\n",
+        "AGENTS.md": "# 代理入口\n修改前阅读根 CONVENTIONS.md。\n职责与验证要求均以该文件为来源。\n",
+        "src/main.py": "def convert(value):\n    return value.strip()\n"
+      },
+      "expected_outcomes": [
+        "在无新的失效或冗余证据时保持文件不变，简短报告无需清理及实际检查范围。",
+        "不为展示工作量而按模板扩写、重排或改写同义句。"
+      ],
+      "forbidden_outcomes": [
+        "新增审查台账、占位章节或泛化规则。",
+        "为凑删减量移除仍有效的职责、UTF-8 或验证要求。"
       ]
     }
   ]
