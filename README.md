@@ -220,7 +220,7 @@ Skill 会先记录用户已明确的契约字段，把需要仓库证据才能�
 
 该 Skill 对外只有一个入口，内部按当前最早的关键未知项进入七个阶段：
 
-明确只要求分析、诊断、审查、解释、状态检查或报告的请求，走七阶段之外的[分析与诊断出口](./product-development-workflow/SKILL.md#阶段外分析与诊断)，默认安全只读。静态证据不足时，可以在覆盖具体动作及副作用的授权内动态复现，仍不进入开发实施或验收；可结束为“分析完成”“无需变更”“阻塞”或“建议进入后续阶段”。
+只要求解释现状、诊断、审查或状态报告时，走七阶段之外的[分析与诊断出口](./product-development-workflow/SKILL.md#阶段外分析与诊断)，默认安全只读。“先分析再给解决方案”按交付目标进入方案阶段；调查是方案形成过程，不会因为出现“分析”一词就走诊断出口。动态复现须有覆盖具体动作及副作用的授权。
 
 1. **产品需求探索**：确认用户、场景、痛点和价值机会，并形成可验证的假设。
 2. **方案头脑风暴**：针对已确认的问题，生成、比较并收敛不同的产品、流程或技术方向。
@@ -230,15 +230,21 @@ Skill 会先记录用户已明确的契约字段，把需要仓库证据才能�
 6. **执行开发计划**：在授权范围内实施任务，完成任务级自检和适用评审；发现上游错误时回退到正确阶段。
 7. **验证与验收**：用当前证据验证需求、Spec、质量和验收标准，形成明确的开发交付结论。
 
-阶段三与四按[业务需求和技术契约](./product-development-workflow/SKILL.md#业务需求与技术契约的边界)区分：技术契约待定留在规格阶段，只有业务意图需重新决定时才回退。正式产物记录修订及采用的上游依据，覆盖已确认或已被采用的旧版前确保其内容可取回；修订后按[下游有效性规则](./product-development-workflow/SKILL.md#产物修订与下游有效性)分别复核文档、任务、评审和验证，文档恢复有效不等待下游实施。阶段六写入前保留相关改动基线，并分别采用正常交接或阻塞交接，避免遗漏用户已有改动或把未完成评审伪装成通过。
+阶段三与四按[业务需求和技术契约](./product-development-workflow/SKILL.md#业务需求与技术契约的边界)区分：技术契约待定留在规格阶段，只有业务意图需重新决定时才回退。正式产物的路径、保存、修订与下游有效性统一见[产物与追溯](./product-development-workflow/references/artifact-contracts.md)；阶段三需求文件需文档授权，阶段四、五在内容、状态和路径确定后直接保存。阶段六写入前保留相关改动基线，区分自身与用户已有变更。
 
 阶段文档只在需要时读取，避免把探索、决策、计划、实施结果和完成证据混成同一份结论。满足入口[“直接进入阶段六”](./product-development-workflow/SKILL.md#直接进入阶段六)门槛的修改不强制新增上游产物，但必须取得工作区修改与本地验证授权。阶段六满足正常或阻塞交接门槛后[自动衔接阶段七](./product-development-workflow/SKILL.md#阶段六到七自动衔接)，无需再次选择阶段，也不增加动作授权；用户明确要求暂不验收时停止，只有通过阶段七验收才能声称开发交付完成。
 
 需求追溯标识由首次建立映射的阶段沿用或补齐，并关联原始需求与验收标准，不因缺编号强制补做上游阶段。阶段七先按[证据复用条件](./product-development-workflow/references/verification-and-acceptance.md#既有验证证据的复用)核对已有结果，复用仍有效的部分，只补齐缺失或受影响验证。验证动作命中多个副作用类别时，须同时满足全部适用授权。
 
-阶段按尚缺的信息选择；仅缺实施授权时准备对应检查点，不因此回到需求澄清。相邻检查点可以在一轮中分别确认，例如同时确认 Spec 并进入阶段五，或在计划、范围、非目标和验证方式已经完整说明后，同时确认计划并授权实施。每项确认必须明确编号或能够被用户回复唯一指向；含糊的“确认”不能扩大实施、Git 或外部状态授权。
+阶段按尚缺的信息选择；仅缺实施授权时准备对应检查点，不因此回到需求澄清。[动作与授权](./product-development-workflow/references/action-boundaries.md)统一定义实施检查点、验证副作用与评审边界。相关决定可以在一轮中分别确认，已有有效授权直接沿用；用户明确变更确认方式时遵循其指令。
 
-预计不超过三个手写文件、目标与验收明确、改动可逆，且不改变公共契约、业务规则、权限、数据、安全或兼容语义的微小变更，可以把阶段选择、变更契约和阶段六授权合并到一次编号检查点。首次请求仍不是实施授权；任一门槛失效时立即退出快捷通道并按普通分流处理。
+预计不超过三个手写文件、目标与验收明确、改动可逆，且不改变公共契约、业务规则、权限、数据、安全或兼容语义的微小变更，可以把阶段选择、范围和实施授权合并到一次检查点。普通初始修改请求不取消默认的“先反馈、后实施”约定。
+
+每轮最终回复按[交接规则](./product-development-workflow/SKILL.md#每轮交付与结尾)说明当前位置、本轮状态和下一步：点名当前阶段与建议阶段，或明确本轮停止。推荐下一阶段不等于已经进入；用户只要当前成果时交付后停止。
+
+本次结构依据 [GPT‑6 技能与提示词指南](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)及 [GPT‑6 prompting best practices](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices)精简入口、按需加载和重复规则。官方指南主要基于 Astra 观察；具体模型的效果应由行为测试确认。测试夹具与运行器位于 `product-development-workflow/tests/`，文件变化检查与对话行为评审分别记录，不能将静态检查通过当成模型行为通过。
+
+[本次验证记录](./product-development-workflow/tests/validation-report.md)保留模型、技能版本、通过观察、失败与超时。当前尚未完成 GPT‑6.1 自动匹配和方案交接的最终版行为验收，不声明已完全适配 GPT‑6 系列。
 
 阶段五至七借鉴了 Superpowers 的实施计划、任务级执行与评审、完成前验证思想，并按本仓库的可移植性和授权边界重新设计；不要求安装 Superpowers，也不默认创建 worktree、分支、提交、推送或部署。参考：[obra/superpowers](https://github.com/obra/superpowers)。
 
@@ -254,14 +260,20 @@ Skill 会先记录用户已明确的契约字段，把需要仓库证据才能�
 │   ├── SKILL.md
 │   ├── agents/
 │   │   └── openai.yaml
-│   └── references/
-│       ├── product-discovery.md
-│       ├── brainstorming.md
-│       ├── clarifying-development-requirements.md
-│       ├── writing-specs.md
-│       ├── writing-implementation-plans.md
-│       ├── executing-development-plans.md
-│       └── verification-and-acceptance.md
+│   ├── references/
+│   │   ├── action-boundaries.md
+│   │   ├── artifact-contracts.md
+│   │   ├── product-discovery.md
+│   │   ├── brainstorming.md
+│   │   ├── clarifying-development-requirements.md
+│   │   ├── writing-specs.md
+│   │   ├── writing-implementation-plans.md
+│   │   ├── executing-development-plans.md
+│   │   └── verification-and-acceptance.md
+│   └── tests/
+│       ├── behavior-cases.json
+│       ├── run_behavior_tests.py
+│       └── validation-report.md
 └── project-conventions/
     ├── SKILL.md
     ├── agents/
