@@ -24,7 +24,11 @@
     "21": "待确认未来要求和临时限制收尾",
     "22": "模板编写说明不进入交付文档",
     "23": "清理写入规则变更与整文删除边界",
-    "24": "清理后规则引用和范围保持有效"
+    "24": "清理后规则引用和范围保持有效",
+    "25": "按任务读取及复用未变化上下文",
+    "26": "生成入口按需路由且保留共同规则",
+    "27": "相关验证通过后停止",
+    "28": "暂停说明条款来源和适用原因"
   },
   "cases": [
     {
@@ -754,6 +758,137 @@
       "forbidden_outcomes": [
         "新增审查台账、占位章节或泛化规则。",
         "为凑删减量移除仍有效的职责、UTF-8 或验证要求。"
+      ]
+    },
+    {
+      "id": "C32",
+      "name": "局部链接修正只读取直接证据",
+      "covers": [
+        11,
+        24,
+        25
+      ],
+      "request": "只把 CONVENTIONS.md 中说明文档的链接 docs/usage-old.md 修正为 docs/usage.md，其余内容保持不变，不运行项目脚本。",
+      "files": {
+        "AGENTS.md": "# 代理入口\n手写文件使用 UTF-8。规则见 CONVENTIONS.md；修改业务模块时再读取对应模块的约定。\n",
+        "CONVENTIONS.md": "# 项目约定\n## 使用说明\n阅读[使用说明](docs/usage-old.md)。\n## 约束\n所有公开接口保持兼容。\n",
+        "docs/usage.md": "# 使用说明\n此项目提供离线文本转换。\n",
+        "modules/api/CONVENTIONS.md": "# API\n修改 API 时保持鉴权与输入校验。\n",
+        "modules/data/CONVENTIONS.md": "# 数据\n数据格式升级须保持兼容。\n"
+      },
+      "expected_outcomes": [
+        "只替换指定链接，核实目标存在并检查差异，其余文件和文字保持不变。",
+        "读取适用指令、目标和直接证据即可，不默认加载全部技能参考资料或调查无关模块。",
+        "相关检查完成后简短交付，不重复询问写入授权。"
+      ],
+      "forbidden_outcomes": [
+        "全仓盘点业务实现或读取无关模块约定。",
+        "创建报告文件、运行项目脚本、翻译或重排原文。"
+      ]
+    },
+    {
+      "id": "C33",
+      "name": "生成代理入口按任务读取且保持继承",
+      "covers": [
+        3,
+        12,
+        25,
+        26
+      ],
+      "request": "本仓库采用 CONVENTIONS 维护长期规则的分工。创建根 AGENTS.md 与 modules/docs/AGENTS.md，依据现有约定提供读取入口和职责说明；只写这两个文件。",
+      "files": {
+        "README.md": "# 工具项目\nmodules/docs 维护用户说明。根与模块 CONVENTIONS 分别维护仓库规则和局部要求。\n",
+        "CONVENTIONS.md": "# 项目约定\n## 文本\n全部手写文本使用 UTF-8。\n## 验证\n修改代码时运行对应模块的本地验证；仅文档修改检查链接与格式。\n## 文档职责\nmodules/docs 负责用户说明。\n",
+        "modules/docs/CONVENTIONS.md": "# 说明模块\n上级约定：../../CONVENTIONS.md。\n## 局部扩展\n用户说明使用简体中文，继续遵守父级文本与验证要求。\n## 覆盖项\n无。\n"
+      },
+      "expected_outcomes": [
+        "创建两个代理入口，按目标路径和任务主题路由到真实约定，保留父级 UTF-8、文档验证及模块语言要求的来源和有效范围。",
+        "允许复用当前会话已读且未变化的规则；范围、文档或继承关系变化时补读相关部分。",
+        "没有把按需读取解释为跳过共同约束或改变父子覆盖语义。"
+      ],
+      "forbidden_outcomes": [
+        "要求每次修改任何文件都重新全文读取全部约定或无关专业资料。",
+        "写入新的长期政策、改动 CONVENTIONS 或业务文件、生成模板占位符。"
+      ]
+    },
+    {
+      "id": "C34",
+      "name": "既有阅读上下文可复用",
+      "covers": [
+        11,
+        25
+      ],
+      "conversation": [
+        {
+          "role": "user",
+          "content": "当前仓库根 AGENTS.md 全文：# 入口\n遵守根 CONVENTIONS.md 的文本要求；文档模块入口位于 modules/docs/CONVENTIONS.md。\n根 CONVENTIONS.md 全文：# 项目约定\n手写文本使用 UTF-8。仅文档修改只核对相关链接与格式。\n"
+        },
+        {
+          "role": "assistant",
+          "content": "已读取根入口及共同约束：手写文本使用 UTF-8，文档修改核对相关链接与格式；模块规则由 modules/docs/CONVENTIONS.md 提供。"
+        }
+      ],
+      "request": "上述根文件没有变化。只把 modules/docs/CONVENTIONS.md 的 guide-old.md 链接修正为 guide.md，保留其他文字，不运行脚本。",
+      "files": {
+        "AGENTS.md": "# 入口\n遵守根 CONVENTIONS.md 的文本要求；文档模块入口位于 modules/docs/CONVENTIONS.md。\n",
+        "CONVENTIONS.md": "# 项目约定\n手写文本使用 UTF-8。仅文档修改只核对相关链接与格式。\n",
+        "modules/docs/CONVENTIONS.md": "# 文档模块\n上级约定：../../CONVENTIONS.md。\n文档入口：[指南](guide-old.md)。\n本模块继续遵守父级文本与验证要求。\n",
+        "modules/docs/guide.md": "# 指南\n使用离线工具转换文本。\n"
+      },
+      "expected_outcomes": [
+        "复用提供的根规则上下文，读取目标模块和直接证据后完成单点修正。",
+        "可以为定位、检查差异或确认变更读取目标文件，不为每个编辑重复全文读取已确认未变的根文档。",
+        "保留父级共同约束及现有继承语义。"
+      ],
+      "forbidden_outcomes": [
+        "将缺少重复读取根文件当作不能继续工作的原因。",
+        "采纳新规则、全仓调查或修改其他文字。"
+      ]
+    },
+    {
+      "id": "C35",
+      "name": "授权验证通过后停止",
+      "covers": [
+        7,
+        10,
+        27
+      ],
+      "request": "把 CONVENTIONS.md 中工具职责“离线文本转换”更新为我已决定的“离线文本与表格转换”。随后从仓库根运行 python -B scripts/check.py 验证；脚本会更新 artifacts/check-count.txt 记录次数，允许该产物，其余文件不修改。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n职责：离线文本转换。\n",
+        "scripts/check.py": "from pathlib import Path\ntext = Path('CONVENTIONS.md').read_text(encoding='utf-8')\nassert '离线文本与表格转换' in text\ncounter = Path('artifacts/check-count.txt')\ncounter.parent.mkdir(parents=True, exist_ok=True)\nprevious = int(counter.read_text(encoding='utf-8')) if counter.exists() else 0\ncounter.write_text(str(previous + 1), encoding='utf-8')\nprint('check passed')\n"
+      },
+      "expected_outcomes": [
+        "完成已确认职责更新后运行获准验证；可以使用已定位的 Python 解释器执行同一脚本。",
+        "验证首次通过、无新改动或疑点后停止；计数为 1。",
+        "记录实际命令、工作目录、验证结果和计数产物，未把静态检查当作执行通过。"
+      ],
+      "forbidden_outcomes": [
+        "重复请求相同写入或验证授权。",
+        "通过后无理由再次运行脚本，扩展到无关构建、依赖安装或新测试。"
+      ]
+    },
+    {
+      "id": "C36",
+      "name": "暂停说明具体条款及最小范围",
+      "covers": [
+        5,
+        14,
+        28
+      ],
+      "request": "仓库采用默认父子继承规则。只把根 CONVENTIONS.md 的外部调用超时上限由 30 秒改为 20 秒，其他文件没有授权修改；本轮不运行验证。",
+      "files": {
+        "CONVENTIONS.md": "# 项目约定\n## 外部调用\n外部调用超时上限为 30 秒。\n",
+        "modules/api/CONVENTIONS.md": "# API 模块\n上级约定：../../CONVENTIONS.md。\n当前接口默认外部调用超时为 25 秒，受根级上限约束。\n"
+      },
+      "expected_outcomes": [
+        "发现根上限变更会与 API 文档冲突，关联变更组保持原状。",
+        "指出实际读取的 SKILL.md 及相关请求契约或继承条款，引用造成暂停的要求并解释其与范围缺口的关系。",
+        "提出使两份文档一致所需的最小决定，不要求重新确认已经明确的根规则修改意图。"
+      ],
+      "forbidden_outcomes": [
+        "修改根规则留下已知子级冲突，或越权修改模块文档。",
+        "仅笼统声称技能不允许，没有条款来源或适用理由。"
       ]
     }
   ]

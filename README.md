@@ -31,7 +31,7 @@ git clone https://github.com/xbd6666/skills.git
 
 ### 2. 导入到你的 AI 助手
 
-将目标 Skill 的完整目录导入或复制到宿主所识别的 Skills 位置。例如，使用 `project-conventions` 时，应一并保留：
+将目标 Skill 的运行文件导入或复制到宿主所识别的 Skills 位置。`project-conventions` 安装以下文件并保留相对结构；`tests/` 只留在源码仓库：
 
 ```text
 project-conventions/
@@ -43,22 +43,19 @@ project-conventions/
 │   ├── discovery.md
 │   ├── inheritance.md
 │   └── verification.md
-├── assets/
-│   ├── 检查现有约定报告.template.md
-│   ├── 制定约定方案.template.md
-│   ├── 根级.CONVENTIONS.template.md
-│   ├── 模块.CONVENTIONS.template.md
-│   ├── 根级.AGENTS.template.md
-│   └── 模块.AGENTS.template.md
-└── tests/
-    ├── README.md
-    └── behavior-cases.json
+└── assets/
+    ├── 检查现有约定报告.template.md
+    ├── 制定约定方案.template.md
+    ├── 根级.CONVENTIONS.template.md
+    ├── 模块.CONVENTIONS.template.md
+    ├── 根级.AGENTS.template.md
+    └── 模块.AGENTS.template.md
 ```
 
 - `SKILL.md` 是必需的通用指令入口。
 - `references/` 保存按工作方式和场景读取的详细规则，`assets/` 保存输出模板；使用时应保留两者的相对结构，不能只复制 `SKILL.md`。
 - `agents/openai.yaml` 是可选的界面元数据；不识别它的宿主可以忽略，不影响 `SKILL.md` 的核心工作流。
-- `tests/` 保存本技能维护用的行为场景和回归方法，常规约定任务不需要加载。
+- `tests/` 保存本技能维护用的行为场景、回归方法和验证记录，仅随源码交付，不同步到安装目录。
 
 > 以下示例使用 `$skill-name` 形式调用。若你的宿主采用其他调用语法，请按其文档替换触发方式。
 
@@ -164,7 +161,7 @@ Use $dbx-mcp to inspect my DBX connections and help write a safe SQL query.
 
 ### 生成前的证据链
 
-Skill 会先记录用户已明确的契约字段，把需要仓库证据才能判断的值标为“待发现”；完成发现后再最终解析范围、布局和语言。单点检查只读取目标、适用指令和直接证据，遇到相关冲突或依赖再扩大范围，可以简短交付；完整方案与多规则维护记录：
+单点检查或明确的局部修正只读取适用指令、目标和直接证据，可以简短交付；当前会话已读且未变化的内容可以复用。范围、语言、权威、继承或清理等细节需要判断时，才加载对应参考章节，按需读取不改变有效规则。完整方案与多规则维护记录：
 
 1. 请求的工作方式、范围、布局、语言和已有文档处理策略。
 2. 目标范围内全部层级的 `CONVENTIONS.md` 与 `AGENTS.md` 清单，以及必要祖先和权威来源；标明已读取、仅发现或不可读，完整审查不能仅检查根文件。
@@ -202,7 +199,9 @@ Skill 会先记录用户已明确的契约字段，把需要仓库证据才能�
 - 现有约定检查报告：按严重度给出问题、证据、影响和建议，不包含写入计划。
 - 约定方案：给出推荐布局、准确文件清单、规则来源和可唯一确认的创建或更新范围。
 
-维护本技能时按[行为场景回归说明](./project-conventions/tests/README.md)检查组合场景和交付完整性；规则、模板及回归资料须一起纳入交付，结构检查和静态推演不等同于实际模型行为重放。
+验证按变更类型选择检查，相关检查通过后停止；新增改动、失败或未解决疑点才扩大或重复验证。用户明确指令优先于技能默认流程；因技能条款暂停时说明具体来源、适用原因和最小待决定范围。上述调整依据 [GPT‑6 技能与提示词指南](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)及 [GPT‑6 prompting best practices](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra#prompting-best-practices)，实际行为仍须按所用模型验证。
+
+维护本技能时按[行为场景回归说明](./project-conventions/tests/README.md)检查组合场景和源码交付完整性；规则、模板及回归资料一起维护，安装只同步运行文件并排除 `tests/`。结构检查和静态推演不等同于实际模型行为重放。
 
 ## dbx-mcp 工作方式
 
